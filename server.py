@@ -1,6 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 import socket
+import socketserver
+import requestHandler
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
@@ -15,5 +17,5 @@ s.listen(5)
 while True:
     c, addr = s.accept()
     print ("Got connection from", addr)
-    c.send("Thank you for connecting")
+    c.send("Thank you for connecting".encode())
     c.close()
