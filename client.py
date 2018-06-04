@@ -13,7 +13,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     # Connect to the server and send data
     sock.connect((HOST, PORT))
-    data = name + " "
+    data = "0 " + name + " "
     sock.send((data).encode())
 
     # Receive data form the server and shut down
