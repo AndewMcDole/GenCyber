@@ -1,21 +1,25 @@
 #!/usr/local/bin/python3
 
-import socket
 import socketserver
-import requestHandler
 
-# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# host = socket.gethostname()
-# port = 6789
-# # Essential, ensures that the resuse of the socket
-# # is setup before the socket is bound. Will avoid
-# # TIME_WAIT issue
-# s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# s.bind((host, port))
-#
-# s.listen(5)
-# while True:
-#     c, addr = s.accept()
-#     print ("Got connection from", addr)
-#     c.send("Thank you for connecting".encode())
-#     c.close()
+class AvengerHandler(socketserver.BaseRequestHandler):
+    """
+    The RequestHandler is instantiated once per connection
+    to the server, and must override the handle() method
+    to implement communication to the client
+    """
+
+    def handle(self):
+        # print("Request Received")
+        self.data = self.request.recv(1024).strip()
+        print ("{} wrote: {}".format(self.client_address[0], self.data.decode()))
+        self.request.send("Thank you for connecting to the Avenger's Stone Hunt".encode())
+
+
+HOST, PORT = "", 6789
+
+#create a server, binding it to localhost on port 6789
+server = socketserver.TCPServer((HOST, PORT), AvengerHandler)
+
+#Activate the server; this will keep running until you interrupt
+server.serve_forever()
