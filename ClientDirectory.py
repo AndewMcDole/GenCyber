@@ -21,19 +21,46 @@ class ClientDirectory:
 
     def findClient(self, name):
         for x in range(self.numberOfClients):
-            if (name == self.matrix[x][0]):
+            if (self.compareStrings(name, self.matrix[x][0])):
                 return self.matrix[x][1]
         return -1
 
+    def deleteClient(self, name):
+        for x in range(self.numberOfClients):
+            #if (name == self.matrix[x][0]):
+            if (self.compareStrings(name, self.matrix[x][0])):
+                for y in range(x, self.numberOfClients - 1):
+                    self.matrix[y][0] = self.matrix[y + 1][0]
+                    self.matrix[y][1] = self.matrix[y + 1][1]
+                self.numberOfClients -= 1
+                return 1
+        return -1
+
+    def display(self):
+        for x in range(self.numberOfClients):
+            print(self.matrix[x])
+
+    def compareStrings(self, str1, str2):
+        str1 = str1.replace(" ", "")
+        str2 = str2.replace(" ", "")
+        if str1.lower() == str2.lower():
+            print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
+            return True
+        return False
 
 if __name__ == "__main__":
-    cd = ClientDirectory(2)
-    cd.addClient("Andrew", 0)
+    cd = ClientDirectory(10)
+    cd.addClient("Will", 2)
+    cd.addClient("Nancy", 3)
+    cd.addClient("Caesar", 4)
+    cd.addClient("Andrew McDole", 0)
     if (cd.allClientsConnected()):
         print ("All clients connected")
     cd.addClient("Josh", 1)
     if (cd.allClientsConnected()):
         print ("All clients connected")
-    print ("ip_address for Andrew: {}".format(cd.findip_address("Andrew")))
-    print ("ip_address for Josh: {}".format(cd.findip_address("Josh")))
-    print ("ip_address for James: {}".format(cd.findip_address("James")))
+    print ("ip_address for Andrew: {}".format(cd.findClient("    Andr ew Mcdole")))
+    print ("ip_address for Josh: {}".format(cd.findClient("Josh")))
+    print ("ip_address for James: {}".format(cd.findClient("James")))
+    print ("Removing Client Josh: {}".format(cd.deleteClient("  josh   ")))
+    cd.display()
