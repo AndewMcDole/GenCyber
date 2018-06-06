@@ -13,13 +13,13 @@ class ClientDirectory:
         else:
             return False
 
-    def addClient(self, name, socket):
+    def addClient(self, name, ip_address):
         self.matrix[self.numberOfClients][0] = name
-        self.matrix[self.numberOfClients][1] = socket
-        print ("Added " + name + " on socket: " + str(socket))
+        self.matrix[self.numberOfClients][1] = ip_address
+        # print ("Added " + name + " on ip_address: " + str(ip_address))
         self.numberOfClients += 1
 
-    def findSocket(self, name):
+    def findClient(self, name):
         for x in range(self.numberOfClients):
             if (name == self.matrix[x][0]):
                 return self.matrix[x][1]
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     cd.addClient("Josh", 1)
     if (cd.allClientsConnected()):
         print ("All clients connected")
-    print ("Socket for Andrew: {}".format(cd.findSocket("Andrew")))
-    print ("Socket for Josh: {}".format(cd.findSocket("Josh")))
-    print ("Socket for James: {}".format(cd.findSocket("James")))
+    print ("ip_address for Andrew: {}".format(cd.findip_address("Andrew")))
+    print ("ip_address for Josh: {}".format(cd.findip_address("Josh")))
+    print ("ip_address for James: {}".format(cd.findip_address("James")))
