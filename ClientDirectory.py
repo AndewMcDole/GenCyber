@@ -48,6 +48,12 @@ class ClientDirectory:
             return True
         return False
 
+    def getAllClients(self):
+        clientList = []
+        for client in range(self.numberOfClients):
+            clientList.append(self.matrix[client][0])
+        return clientList
+
 if __name__ == "__main__":
     cd = ClientDirectory(10)
     cd.addClient("Will", 2)
@@ -64,3 +70,4 @@ if __name__ == "__main__":
     print ("ip_address for James: {}".format(cd.findClient("James")))
     print ("Removing Client Josh: {}".format(cd.deleteClient("  josh   ")))
     cd.display()
+    print (cd.getAllClients())
