@@ -1,28 +1,48 @@
 #!/usr/local/bin/python3
 
 import socket
+import select
+import sys
 import netifaces as ni
 ni.ifaddresses('en0')
+LOCALHOST_IP = ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
 
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+if len(sys.argv) != 3:
+    print ("Correct usage: script, IP address, port number")
+    exit()
+IP_address = str(sys.argv[1])
+Port = int(sys.argv[2])
+server.connect((IP_address, Port))
+
+#User setup
 name = input("Who are you? ")
-HOST = input("What IP are you trying to connect to? ")
-HOST = ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
-PORT = int(input("What port are you trying to connect to? "))
+server.send(name.encode())
 
+while True:
 
-# Create a socket to server and send data
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # maintains a list of possible input streams
+    sockets_list = [sys.stdin, server]
 
-try:
-    # Connect to the server and send data
-    sock.connect((HOST, PORT))
-    data = "0 " + name + " "
-    sock.send((data).encode())
+    """ There are two possible input situations. Either the
+    user wants to give  manual input to send to other people,
+    or the server is sending a message  to be printed on the
+    screen. Select returns from sockets_list, the stream that
+    is reader for input. So for example, if the server wants
+    to send a message, then the if condition will hold true
+    below.If the user wants to send a message, the else
+    condition will evaluate as true"""
+    read_sockets,write_socket, error_socket = select.select(sockets_list,[],[])
 
-    # Receive data form the server and shut down
-    received = sock.recv(1024)
-finally:
-    sock.close()
-
-print ("Sent:        {}".format(data))
-print ("Received:    {}".format(received.decode()))
+    for socks in read_sockets:
+        if socks == server:
+            message = socks.recv(2048)
+            print (message.decode())
+        else:
+            message = sys.stdin.readline()
+            server.send(message.encode())
+            sys.stdout.write("<You>")
+            sys.stdout.write(message)
+            sys.stdout.flush()
+server.close()
