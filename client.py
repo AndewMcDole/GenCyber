@@ -1,9 +1,12 @@
 #!/usr/local/bin/python3
 
 import socket
+import netifaces as ni
+ni.ifaddresses('en0')
 
 name = input("Who are you? ")
 HOST = input("What IP are you trying to connect to? ")
+HOST = ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
 PORT = int(input("What port are you trying to connect to? "))
 
 
