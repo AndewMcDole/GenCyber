@@ -1,5 +1,6 @@
 #!/usr/local/bin/python3
 
+
 from hashlib import blake2b
 
 def get_hash(k):
@@ -20,14 +21,15 @@ def get_hash_(message, k):
 def check_hash(message, hash, key):
     hash_ = get_hash_(message, key)
     if hash_ == hash:
-        return ("Correct Hash")
+        return("Hashes Match")
     else:
-        return("Incorrect Hash")
+        return("Hashed Do Not Match")
+
 
 
 if __name__ == "__main__":
     k = input("Enter key: ")
-    mess, h = get_hash(k)
+    mess, h = get_hash()
     check_hash(mess, h, k)
     #Check that check_hash works for non-matching hashes
     mess_ = input("Enter changed message: ")
