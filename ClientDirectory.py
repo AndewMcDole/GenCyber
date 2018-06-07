@@ -13,9 +13,9 @@ class ClientDirectory:
         else:
             return False
 
-    def addClient(self, name, ip_address):
+    def addClient(self, name, conn):
         self.matrix[self.numberOfClients][0] = name
-        self.matrix[self.numberOfClients][1] = ip_address
+        self.matrix[self.numberOfClients][1] = conn
         # print ("Added " + name + " on ip_address: " + str(ip_address))
         self.numberOfClients += 1
 
@@ -29,6 +29,17 @@ class ClientDirectory:
         for x in range(self.numberOfClients):
             #if (name == self.matrix[x][0]):
             if (self.compareStrings(name, self.matrix[x][0])):
+                for y in range(x, self.numberOfClients - 1):
+                    self.matrix[y][0] = self.matrix[y + 1][0]
+                    self.matrix[y][1] = self.matrix[y + 1][1]
+                self.numberOfClients -= 1
+                return 1
+        return -1
+
+    def deleteConn(self, conn):
+        for x in range(self.numberOfClients):
+            #if (name == self.matrix[x][0]):
+            if conn == self.matrix[x][1]:
                 for y in range(x, self.numberOfClients - 1):
                     self.matrix[y][0] = self.matrix[y + 1][0]
                     self.matrix[y][1] = self.matrix[y + 1][1]
@@ -53,6 +64,12 @@ class ClientDirectory:
         for client in range(self.numberOfClients):
             clientList.append(self.matrix[client][0])
         return clientList
+
+    def getAllConn(self):
+        connList = []
+        for client in range(self.numberOfClients):
+            connList.append(self.matrix[client][1])
+        return connList
 
 if __name__ == "__main__":
     cd = ClientDirectory(10)
