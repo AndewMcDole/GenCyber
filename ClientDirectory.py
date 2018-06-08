@@ -55,7 +55,7 @@ class ClientDirectory:
         str1 = str1.replace(" ", "")
         str2 = str2.replace(" ", "")
         if str1.lower() == str2.lower():
-            print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
+            # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
             return True
         return False
 
@@ -72,19 +72,8 @@ class ClientDirectory:
         return connList
 
 if __name__ == "__main__":
-    cd = ClientDirectory(10)
-    cd.addClient("Will", 2)
-    cd.addClient("Nancy", 3)
-    cd.addClient("Caesar", 4)
-    cd.addClient("Andrew McDole", 0)
-    if (cd.allClientsConnected()):
-        print ("All clients connected")
-    cd.addClient("Josh", 1)
-    if (cd.allClientsConnected()):
-        print ("All clients connected")
-    print ("ip_address for Andrew: {}".format(cd.findClient("    Andr ew Mcdole")))
-    print ("ip_address for Josh: {}".format(cd.findClient("Josh")))
-    print ("ip_address for James: {}".format(cd.findClient("James")))
-    print ("Removing Client Josh: {}".format(cd.deleteClient("  josh   ")))
-    cd.display()
+    cd = ClientDirectory(4)
+    cd.addClient("Iron Man", 2)
+    cd.addClient("Captain", 3)
     print (cd.getAllClients())
+    print ("Find Client: {}".format(cd.findClient("captain")))
