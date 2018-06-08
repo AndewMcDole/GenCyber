@@ -3,9 +3,8 @@
 import socket
 import select
 import sys
-import netifaces as ni
-ni.ifaddresses('en0')
-LOCALHOST_IP = ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
+
+import ChaffFactory
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -25,6 +24,9 @@ while True:
     # maintains a list of possible input streams
     sockets_list = [sys.stdin, server]
 
+    # used for chaffing/winnowing
+    CF = ChaffFactory.ChaffFactory()
+
     """ There are two possible input situations. Either the
     user wants to give  manual input to send to other people,
     or the server is sending a message  to be printed on the
@@ -41,6 +43,10 @@ while True:
             print (message.decode())
         else:
             message = sys.stdin.readline()
+
+            # Once the user types a name to send, ask for a message to write
+            message = message + ";" + CF.constructMessage()
+
             server.send(message.encode())
             sys.stdout.write("<You>")
             sys.stdout.write(message)
