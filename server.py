@@ -64,7 +64,7 @@ def clientthread(conn, addr):
                     """prints the message and address of the
                     user who just sent the message on the server
                     terminal"""
-                    print ("<" + name + "> " + message.decode())
+                    # print ("<" + name + "> " + message.decode())
                     sendMessage(message.decode(), name)
 
                     # Calls broadcast function to send message to all
@@ -78,6 +78,36 @@ def clientthread(conn, addr):
 
             except:
                 continue
+
+
+def sendMessage(message, sender):
+    message_parts = message.split(";")
+    # Locates connection associated with name of client
+    destination_client = message_parts[0]
+    destination_client_conn = client_directory.findClient(destination_client)
+
+    # findClient() returns -1 if the client isn't found
+    if destination_client_conn != -1:
+        print ("<{} to {}> {}".format(sender, destination_client, message))
+
+        # Remove the receiver name from the beginning and prepend on the sender name
+        message_to_send = sender + ";"
+        print (message_parts)
+        for message_part in message_parts[1:-2]:
+            message_to_send = message_to_send + message_part + ";"
+
+        list_of_conns = client_directory.getAllConn()
+        for conn in list_of_conns:
+            if conn == destination_client_conn:
+                try:
+                    conn.send(message_to_send.encode())
+                except:
+                    conn.close()
+
+                    # if the link is broken, we remove the client
+                    client_directory.deleteConn(conn)
+                    print ("Lost connection with {}".format(conn))
+
 
 """Using the below function, we broadcast the message to all
 clients who's object is not the same as the one sending
@@ -95,33 +125,6 @@ def broadcast(message, connection):
                 client_directory.deleteConn(conn)
                 print ("Lost connection with {}".format(conn))
 
-def sendMessage(message, sender):
-    # Locates connection associated with name of client
-    destination_client = message.split(";")[0]
-    print ("Client Directory: {}".format(client_directory.getAllClients()))
-    print ("destination_client: {}".format(destination_client))
-    destination_client_conn = client_directory.findClient(destination_client)
-    # destination_client_conn = client_directory.findClient("captain")
-    # findClient() returns -1 if the client isn't found
-    print (destination_client_conn)
-
-    if destination_client_conn != -1:
-        print ("Destination Found")
-        print ("{} to {}".format(sender, destination_client))
-        message_to_send = "<" + sender + "> ;" + message
-
-        list_of_conns = client_directory.getAllConn()
-        for conn in list_of_conns:
-            if conn == destination_client_conn:
-                try:
-                    print ("Sending Message")
-                    conn.send(message.encode())
-                except:
-                    conn.close()
-
-                    # if the link is broken, we remove the client
-                    client_directory.deleteConn(conn)
-                    print ("Lost connection with {}".format(conn))
 
 while True:
 
