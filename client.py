@@ -43,6 +43,8 @@ while True:
             print (message.decode())
         else:
             message = sys.stdin.readline()
+            # Remove the \n created by readline()
+            message = message.split("\n")[0]
 
             # Once the user types a name to send, ask for a message to write
             message = message + ";" + CF.constructMessage()

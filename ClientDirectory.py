@@ -76,4 +76,8 @@ if __name__ == "__main__":
     cd.addClient("Iron Man", 2)
     cd.addClient("Captain", 3)
     print (cd.getAllClients())
-    print ("Find Client: {}".format(cd.findClient("captain")))
+
+    message = "captain\n;Hello;123;Fake;123;Fake;123"
+    destination_client = message.split(";")[0]
+
+    print ("Find Client: {}".format(cd.findClient(destination_client)))
