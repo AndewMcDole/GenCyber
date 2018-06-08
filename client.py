@@ -19,6 +19,10 @@ server.connect((IP_address, Port))
 name = input("Who are you? ")
 server.send(name.encode())
 
+# Receive the opening message
+message = server.recv(2048)
+print (message.decode())
+
 while True:
 
     # maintains a list of possible input streams
@@ -40,7 +44,16 @@ while True:
     for socks in read_sockets:
         if socks == server:
             message = socks.recv(2048)
-            print (message.decode())
+
+            # Once we receive a message, we need to strip off the name and winnow the message
+            message_parts = message.decode().split(";")
+        
+            print ("< {} >".format(message_parts[0]))
+            message_to_winnow = ""
+            for message_part in message_parts[1:-2]:
+                message_to_winnow = message_to_winnow + message_part + ";"
+
+            CF.winnow(message_to_winnow)
         else:
             message = sys.stdin.readline()
             # Remove the \n created by readline()

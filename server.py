@@ -93,7 +93,7 @@ def sendMessage(message, sender):
         # Remove the receiver name from the beginning and prepend on the sender name
         message_to_send = sender + ";"
         print (message_parts)
-        for message_part in message_parts[1:-2]:
+        for message_part in message_parts[1:]:
             message_to_send = message_to_send + message_part + ";"
 
         list_of_conns = client_directory.getAllConn()
