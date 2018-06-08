@@ -13,9 +13,9 @@ class ClientDirectory:
         else:
             return False
 
-    def addClient(self, name, ip_address):
+    def addClient(self, name, conn):
         self.matrix[self.numberOfClients][0] = name
-        self.matrix[self.numberOfClients][1] = ip_address
+        self.matrix[self.numberOfClients][1] = conn
         # print ("Added " + name + " on ip_address: " + str(ip_address))
         self.numberOfClients += 1
 
@@ -36,6 +36,17 @@ class ClientDirectory:
                 return 1
         return -1
 
+    def deleteConn(self, conn):
+        for x in range(self.numberOfClients):
+            #if (name == self.matrix[x][0]):
+            if conn == self.matrix[x][1]:
+                for y in range(x, self.numberOfClients - 1):
+                    self.matrix[y][0] = self.matrix[y + 1][0]
+                    self.matrix[y][1] = self.matrix[y + 1][1]
+                self.numberOfClients -= 1
+                return 1
+        return -1
+
     def display(self):
         for x in range(self.numberOfClients):
             print(self.matrix[x])
@@ -44,7 +55,7 @@ class ClientDirectory:
         str1 = str1.replace(" ", "")
         str2 = str2.replace(" ", "")
         if str1.lower() == str2.lower():
-            print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
+            # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
             return True
         return False
 
@@ -54,20 +65,15 @@ class ClientDirectory:
             clientList.append(self.matrix[client][0])
         return clientList
 
+    def getAllConn(self):
+        connList = []
+        for client in range(self.numberOfClients):
+            connList.append(self.matrix[client][1])
+        return connList
+
 if __name__ == "__main__":
-    cd = ClientDirectory(10)
-    cd.addClient("Will", 2)
-    cd.addClient("Nancy", 3)
-    cd.addClient("Caesar", 4)
-    cd.addClient("Andrew McDole", 0)
-    if (cd.allClientsConnected()):
-        print ("All clients connected")
-    cd.addClient("Josh", 1)
-    if (cd.allClientsConnected()):
-        print ("All clients connected")
-    print ("ip_address for Andrew: {}".format(cd.findClient("    Andr ew Mcdole")))
-    print ("ip_address for Josh: {}".format(cd.findClient("Josh")))
-    print ("ip_address for James: {}".format(cd.findClient("James")))
-    print ("Removing Client Josh: {}".format(cd.deleteClient("  josh   ")))
-    cd.display()
+    cd = ClientDirectory(4)
+    cd.addClient("Iron Man", 2)
+    cd.addClient("Captain", 3)
     print (cd.getAllClients())
+    print ("Find Client: {}".format(cd.findClient("captain")))
