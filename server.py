@@ -4,6 +4,7 @@
 import socket
 import select
 import sys
+import datetime
 from _thread import *
 import netifaces as ni
 ni.ifaddresses('en0')
@@ -60,6 +61,12 @@ def clientthread(conn, addr):
             try:
                 message = conn.recv(2048)
                 if message:
+                    date_time = datetime.datetime.now()
+                    sys.stdout.write("{} ".format(date_time))
+                    sys.stdout.flush()
+                    # Check if it is a request for client list
+                    if message.decode().split()[0] == "clients_list":
+                        sendClientList(name, conn)
 
                     """prints the message and address of the
                     user who just sent the message on the server
@@ -86,13 +93,16 @@ def sendMessage(message, sender):
     destination_client = message_parts[0]
     destination_client_conn = client_directory.findClient(destination_client)
 
+    # The following line displays the destination and the full list in case a client isnt found
+    # print ("destination_client: {} {}".format(destination_client, client_directory.getAllClients()))
+
     # findClient() returns -1 if the client isn't found
     if destination_client_conn != -1:
         print ("<{} to {}> {}".format(sender, destination_client, message))
 
         # Remove the receiver name from the beginning and prepend on the sender name
         message_to_send = sender + ";"
-        print (message_parts)
+        # print (message_parts)
         for message_part in message_parts[1:]:
             message_to_send = message_to_send + message_part + ";"
 
@@ -108,6 +118,10 @@ def sendMessage(message, sender):
                     client_directory.deleteConn(conn)
                     print ("Lost connection with {}".format(conn))
 
+def sendClientList(name, conn):
+    print ("Client list requested by {}".format(name))
+    message = str(client_directory.getAllClients())
+    conn.send(message.encode())
 
 """Using the below function, we broadcast the message to all
 clients who's object is not the same as the one sending

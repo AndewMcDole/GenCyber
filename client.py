@@ -3,9 +3,26 @@
 import socket
 import select
 import sys
+import datetime
 
 import ChaffFactory
 
+def displayHelpMenu():
+    listOfCommands = ["Send", "Who", "Help"]
+    print ("List of commands: {}".format(listOfCommands))
+
+def requestClients(socks):
+    socks.send("clients_list".encode())
+    message = socks.recv(2048)
+    print (message.decode())
+
+def compareStrings(str1, str2):
+    str1 = str1.replace(" ", "")
+    str2 = str2.replace(" ", "")
+    if str1.lower() == str2.lower():
+        # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
+        return True
+    return False
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
@@ -31,6 +48,9 @@ while True:
     # used for chaffing/winnowing
     CF = ChaffFactory.ChaffFactory()
 
+    sys.stdout.write("> ")
+    sys.stdout.flush()
+
     """ There are two possible input situations. Either the
     user wants to give  manual input to send to other people,
     or the server is sending a message  to be printed on the
@@ -47,8 +67,12 @@ while True:
 
             # Once we receive a message, we need to strip off the name and winnow the message
             message_parts = message.decode().split(";")
-        
-            print ("< {} >".format(message_parts[0]))
+
+            date_time = datetime.datetime.now()
+            sys.stdout.write("{} ".format(date_time))
+            sys.stdout.flush()
+
+            print (" {} <".format(message_parts[0]))
             message_to_winnow = ""
             for message_part in message_parts[1:-2]:
                 message_to_winnow = message_to_winnow + message_part + ";"
@@ -56,14 +80,28 @@ while True:
             CF.winnow(message_to_winnow)
         else:
             message = sys.stdin.readline()
-            # Remove the \n created by readline()
-            message = message.split("\n")[0]
 
-            # Once the user types a name to send, ask for a message to write
-            message = message + ";" + CF.constructMessage()
+            #Allow the user to begin sending a messge by typing in "send"
+            command = message.split()[0]
 
-            server.send(message.encode())
-            sys.stdout.write("<You>")
-            sys.stdout.write(message)
-            sys.stdout.flush()
+            if (compareStrings(command, "send")):
+                message = input("Who to write to: ")
+
+                # Remove the \n created by readline()
+                message = message.split("\n")[0]
+
+                # Once the user types a name to send, ask for a message to write
+                message = message + ";" + CF.constructMessage()
+
+                server.send(message.encode())
+                sys.stdout.write("<You>")
+                sys.stdout.write(message + "\n")
+                sys.stdout.flush()
+
+            elif compareStrings(command, "help"):
+                displayHelpMenu()
+
+            elif compareStrings(command, "Who"):
+                requestClients(server)
+
 server.close()
