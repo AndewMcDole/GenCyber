@@ -51,7 +51,8 @@ def clientthread(conn, addr):
 
     """Maintains a list of clients for ease of broadcasting
     a message to all available people in the chatroom"""
-    client_directory.addClient(name, conn)
+    stones, location = client_directory.addClient(name, conn)
+    conn.send("You have {}\nLocation: {}".format(stones, location).encode())
 
     # prints the name and address of the user that just connected
     print (name + " connected on " + addr[0])
