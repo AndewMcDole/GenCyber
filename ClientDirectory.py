@@ -1,11 +1,34 @@
 #!/usr/local/bin/python3
 
+import random
+import os
+filepath = os.getcwd()
+filepath = os.path.join(filepath, "locations.txt")
+
+# list of locations
+list_of_locations = []
+location_list_file = open(filepath, "r")
+num_locations = 0
+for line in location_list_file:
+    list_of_locations.append(line.strip("\n"))
+    num_locations = num_locations + 1
+
+print (list_of_locations)
+print ("Number of possible locations: {}".format(num_locations))
+
+list_of_stones = ["No Stone", "Space Stone", "Reality Stone", "Power Stone", "Mind Stone", "Soul Stone", "Time Stone", "Gatherer"]
+garbage_list = []
+
 class ClientDirectory:
 
     def __init__(self, numClients):
         self.numberOfClients = 0
+        self.stonesLeft= 7 # include the gatherer role
         self.maxNumberOfClients = numClients
-        self.matrix = [[0 for x in range(2)] for y in range(self.maxNumberOfClients)]
+        # targetNumberOfClients will be used for the stone distribution so all of the stones will be distributed
+        # targetNumberOfClients will not be changed
+        self.targetNumberOfClients = numClients
+        self.matrix = [[0 for x in range(4)] for y in range(self.maxNumberOfClients)]
 
     def allClientsConnected(self):
         if (self.numberOfClients == self.maxNumberOfClients):
@@ -17,7 +40,79 @@ class ClientDirectory:
         self.matrix[self.numberOfClients][0] = name
         self.matrix[self.numberOfClients][1] = conn
         # print ("Added " + name + " on ip_address: " + str(ip_address))
+
+        # Get a stone and a location
+        self.matrix[self.numberOfClients][2] = self.selectStone()
+        self.matrix[self.numberOfClients][3] = self.selectLocation()
+
         self.numberOfClients += 1
+        self.resize()
+
+    def resize(self):
+        self.maxNumberOfClients = self.maxNumberOfClients * 2
+        self.matrix2 = [[0 for x in range(4)] for y in range(self.maxNumberOfClients)]
+        for i in range(self.numberOfClients):
+            for j in range(4):
+                self.matrix2[i][j] = self.matrix[i][j]
+        self.matrix = self.matrix2
+
+    def selectStone(self):
+        # dice_roll is the percentage that a hero will receive a second stone
+        dice_roll = random.randint(0,10)
+        client_stone = []
+
+        valid_choice = False
+        while not valid_choice:
+            print ("Choose 1")
+
+            stone_choice = random.choice(list_of_stones)
+
+            #check to see if the choice that was just picked already was chosen
+            if stone_choice not in garbage_list or stone_choice == "No Stone":
+                valid_choice = True
+                client_stone.append(stone_choice)
+                garbage_list.append(stone_choice)
+                self.stonesLeft -= 1
+
+        # The client can also have another stone but not if they rolled no stone or gatherer
+        if dice_roll == 0 and stone_choice != "Gatherer" and stone_choice != "No Stone":
+            print ("Choose 2")
+            valid_choice = False
+            while not valid_choice:
+                stone_choice = random.choice(list_of_stones)
+
+                #check to see if the choice that was just picked already was chosen
+                if stone_choice not in garbage_list:
+                    valid_choice = True
+                    client_stone.append(stone_choice)
+                    garbage_list.append(stone_choice)
+                    self.stonesLeft -= 1
+
+        while self.stonesLeft > (self.targetNumberOfClients - self.numberOfClients):
+            print ("Choose 3")
+            valid_choice = False
+            while not valid_choice:
+                stone_choice = random.choice(list_of_stones)
+
+                #check to see if the choice that was just picked already was chosen
+                if stone_choice not in garbage_list and stone_choice != "No Stone":
+                    valid_choice = True
+                    client_stone.append(stone_choice)
+                    garbage_list.append(stone_choice)
+                    self.stonesLeft -= 1
+
+
+        print ("Dice_Roll: {}".format(dice_roll))
+        print ("Stone_Choice: {}".format(client_stone))
+        print ("Stones left: {}".format(self.stonesLeft))
+        return client_stone
+
+    def selectLocation(self):
+        dice_roll = random.randint(0,10)
+        location_choice = random.choice(list_of_locations)
+        print ("Dice_Roll: {}".format(dice_roll))
+        print ("location_Choice: {}".format(location_choice))
+        return 1
 
     def findClient(self, name):
         for x in range(self.numberOfClients):
