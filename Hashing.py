@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 
 
-from hashlib import blake2b
+import hashlib
 
 def get_hash(k):
     message = input("Enter your message: ")

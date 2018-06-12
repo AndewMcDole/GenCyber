@@ -56,6 +56,7 @@ def clientthread(conn, addr):
     # prints the name and address of the user that just connected
     print (name + " connected on " + addr[0])
 
+    # Client gets designation
 
     while True:
             try:
