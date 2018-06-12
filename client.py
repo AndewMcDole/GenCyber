@@ -40,6 +40,10 @@ server.send(name.encode())
 message = server.recv(2048)
 print (message.decode())
 
+# Receive stone setup
+message = server.recv(2048)
+print (message.decode())
+
 while True:
 
     # maintains a list of possible input streams

@@ -13,9 +13,6 @@ for line in location_list_file:
     list_of_locations.append(line.strip("\n"))
     num_locations = num_locations + 1
 
-print (list_of_locations)
-print ("Number of possible locations: {}".format(num_locations))
-
 list_of_stones = ["No Stone", "Space Stone", "Reality Stone", "Power Stone", "Mind Stone", "Soul Stone", "Time Stone", "Gatherer"]
 garbage_list = []
 
@@ -47,6 +44,8 @@ class ClientDirectory:
 
         self.numberOfClients += 1
         self.resize()
+        # self.display()
+        return str(self.matrix[self.numberOfClients - 1][2]), str(self.matrix[self.numberOfClients - 1][3])
 
     def resize(self):
         self.maxNumberOfClients = self.maxNumberOfClients * 2
@@ -57,14 +56,11 @@ class ClientDirectory:
         self.matrix = self.matrix2
 
     def selectStone(self):
-        # dice_roll is the percentage that a hero will receive a second stone
-        dice_roll = random.randint(0,10)
         client_stone = []
 
         valid_choice = False
         while not valid_choice:
-            print ("Choose 1")
-
+            # print ("Choose 1")
             stone_choice = random.choice(list_of_stones)
 
             #check to see if the choice that was just picked already was chosen
@@ -72,24 +68,12 @@ class ClientDirectory:
                 valid_choice = True
                 client_stone.append(stone_choice)
                 garbage_list.append(stone_choice)
-                self.stonesLeft -= 1
-
-        # The client can also have another stone but not if they rolled no stone or gatherer
-        if dice_roll == 0 and stone_choice != "Gatherer" and stone_choice != "No Stone":
-            print ("Choose 2")
-            valid_choice = False
-            while not valid_choice:
-                stone_choice = random.choice(list_of_stones)
-
-                #check to see if the choice that was just picked already was chosen
-                if stone_choice not in garbage_list:
-                    valid_choice = True
-                    client_stone.append(stone_choice)
-                    garbage_list.append(stone_choice)
+                if stone_choice != "No Stone":
                     self.stonesLeft -= 1
 
-        while self.stonesLeft > (self.targetNumberOfClients - self.numberOfClients):
-            print ("Choose 3")
+        # print ("{} vs. {}".format(self.stonesLeft, (self.targetNumberOfClients - self.numberOfClients)))
+        while self.stonesLeft >= (self.targetNumberOfClients - self.numberOfClients) and self.stonesLeft != 0:
+            # print ("Choose 3")
             valid_choice = False
             while not valid_choice:
                 stone_choice = random.choice(list_of_stones)
@@ -101,18 +85,22 @@ class ClientDirectory:
                     garbage_list.append(stone_choice)
                     self.stonesLeft -= 1
 
+        # remove unnecessary "No Stone" form listen
+        if len(client_stone) > 1 and client_stone[0] == "No Stone":
+            client_stone.remove("No Stone")
 
-        print ("Dice_Roll: {}".format(dice_roll))
-        print ("Stone_Choice: {}".format(client_stone))
-        print ("Stones left: {}".format(self.stonesLeft))
+
+        # print ("Dice_Roll: {}".format(dice_roll))
+        # print ("Stone_Choice: {}".format(client_stone))
+        # print ("Stones left: {}".format(self.stonesLeft))
         return client_stone
 
     def selectLocation(self):
         dice_roll = random.randint(0,10)
         location_choice = random.choice(list_of_locations)
-        print ("Dice_Roll: {}".format(dice_roll))
-        print ("location_Choice: {}".format(location_choice))
-        return 1
+        # print ("Dice_Roll: {}".format(dice_roll))
+        # print ("location_Choice: {}".format(location_choice))
+        return location_choice
 
     def findClient(self, name):
         for x in range(self.numberOfClients):
