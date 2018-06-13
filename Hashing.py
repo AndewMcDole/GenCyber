@@ -2,6 +2,7 @@
 
 
 import hashlib
+from hashlib import blake2b
 
 def get_hash(k):
     message = input("Enter your message: ")
