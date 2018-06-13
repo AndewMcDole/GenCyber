@@ -1,19 +1,17 @@
 #!/usr/local/bin/python3
 
 
-import hashlib
+import hmac
 
 def get_hash(k):
     message = input("Enter your message: ")
-    hash = blake2b(key=k.encode(), digest_size=20)
-    hash.update(message.encode())
+    hash = hmac.new(k.encode(), msg=message.encode(), digestmod='sha256')
     hash_ = hash.hexdigest()
     #print("\"" + message + "\" hashes to: " + hash_)
     return message, hash_
 
 def get_hash_(message, k):
-    hash = blake2b(key=k.encode(), digest_size=20)
-    hash.update(message.encode())
+    hash = hmac.new(k.encode(), msg=message.encode(), digestmod='sha256')
     hash_ = hash.hexdigest()
     #print("\"" + message + "\" hashes to: " + hash_)
     return hash_
