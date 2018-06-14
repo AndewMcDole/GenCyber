@@ -2,6 +2,7 @@
 
 # Python program to implement server side of chat room.
 import socket
+import random
 import select
 import sys
 import datetime
@@ -43,6 +44,19 @@ server.listen(Number_Of_Clients)
 client_directory = ClientDirectory.ClientDirectory(Number_Of_Clients)
 # list_of_clients = []
 
+def generateSecretKey(key_length):
+    # list of possible key characters
+    list_of_characters = ["9","8","7","6","5","4","3","2","1","0"]
+
+    key = ""
+    for x in range(key_length):
+        key = key + random.choice(list_of_characters)
+
+    return str(key)
+
+# generate secret key of length 12
+SECRET_KEY = generateSecretKey(12)
+
 def clientthread(conn, addr):
 
     # sends a message to the client whose user object is conn
@@ -54,6 +68,9 @@ def clientthread(conn, addr):
     if (name != "server_master"):
         stones, location = client_directory.addClient(name, conn)
         conn.send("You have {}\nLocation: {}".format(stones, location).encode())
+
+        # Send secret key
+        conn.send(SECRET_KEY.encode())
 
         # prints the name and address of the user that just connected
         print (name + " connected on " + addr[0])
@@ -94,8 +111,9 @@ def serverMessage(message, conn):
     message_part = message.split(";")[0]
     if (message_part == "game_state"):
         messsage_to_send = client_directory.getGameState()
-        print (message_to_send)
-        conn.send(message.encode())
+        conn.send(str(messsage_to_send).encode())
+        print ("Server requested GameState")
+
     elif (message_part == "delete"):
         name_to_delete = message_part.split(";")[1]
         if client_directory.deleteClient(name_to_delete) == 1:
@@ -157,7 +175,6 @@ def broadcast(message, connection):
                 # if the link is broken, we remove the client
                 client_directory.deleteConn(conn)
                 print ("Lost connection with {}".format(conn))
-
 
 while True:
 

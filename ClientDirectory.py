@@ -139,10 +139,10 @@ class ClientDirectory:
             print(self.matrix[x])
 
     def getGameState(self):
-        message_to_send = ""
-        for x in range(self.numberOfClients):
-            print (self.matrix[x])
-            message_to_send = message_to_send + str(self.matrix[x]) + "\n"
+        message_to_send = " "
+        for client in range(self.numberOfClients):
+            message_to_send = message_to_send + str(self.matrix[client])
+            # print (message_to_send)
         return message_to_send
 
     def compareStrings(self, str1, str2):

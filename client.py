@@ -44,6 +44,10 @@ print (message.decode())
 message = server.recv(2048)
 print (message.decode())
 
+# receive Secret Key as a base 32 number
+SECRET_KEY = int(server.recv(2048).decode())
+print ("Secret Key: {}".format(SECRET_KEY))
+
 while True:
 
     # maintains a list of possible input streams
@@ -81,7 +85,7 @@ while True:
             for message_part in message_parts[1:-2]:
                 message_to_winnow = message_to_winnow + message_part + ";"
 
-            CF.winnow(message_to_winnow)
+            CF.winnow(message_to_winnow, SECRET_KEY)
         else:
             message = sys.stdin.readline()
 
@@ -95,7 +99,7 @@ while True:
                 message = message.split("\n")[0]
 
                 # Once the user types a name to send, ask for a message to write
-                message = message + ";" + CF.constructMessage()
+                message = message + ";" + CF.constructMessage(SECRET_KEY)
 
                 server.send(message.encode())
                 sys.stdout.write("<You>")

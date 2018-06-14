@@ -68,7 +68,7 @@ while True:
             message = socks.recv(2048)
 
             date_time = datetime.datetime.now()
-            sys.stdout.write("{} {}".format(date_time, message))
+            sys.stdout.write("{} {}".format(date_time, message.decode()))
             sys.stdout.flush()
 
         else:
@@ -79,7 +79,7 @@ while True:
 
             if (compareStrings(command, "game_state")):
                 server.send("game_state;".encode())
-                print(server.recv(2048).decode())
+                print(server.recv(4096).decode())
 
             elif (compareStrings(command, "delete")):
                 name_to_delete = input ("Who to delete: ")
