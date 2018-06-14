@@ -2,6 +2,7 @@
 
 # Python program to implement server side of chat room.
 import socket
+import random
 import select
 import sys
 import datetime
@@ -43,6 +44,19 @@ server.listen(Number_Of_Clients)
 client_directory = ClientDirectory.ClientDirectory(Number_Of_Clients)
 # list_of_clients = []
 
+def generateSecretKey(key_length):
+    # list of possible key characters
+    list_of_characters = ["9","8","7","6","5","4","3","2","1","0"]
+
+    key = ""
+    for x in range(key_length):
+        key = key + random.choice(list_of_characters)
+
+    return str(key)
+
+# generate secret key of length 12
+SECRET_KEY = generateSecretKey(12)
+
 def clientthread(conn, addr):
 
     # sends a message to the client whose user object is conn
@@ -51,31 +65,36 @@ def clientthread(conn, addr):
 
     """Maintains a list of clients for ease of broadcasting
     a message to all available people in the chatroom"""
-    stones, location = client_directory.addClient(name, conn)
-    conn.send("You have {}\nLocation: {}".format(stones, location).encode())
+    if (name != "server_master"):
+        stones, location = client_directory.addClient(name, conn)
+        conn.send("You have {}\nLocation: {}".format(stones, location).encode())
 
-    # prints the name and address of the user that just connected
-    print (name + " connected on " + addr[0])
+        # Send secret key
+        conn.send(SECRET_KEY.encode())
 
-    # Client gets designation
+        # prints the name and address of the user that just connected
+        print (name + " connected on " + addr[0])
+
 
     while True:
             try:
                 message = conn.recv(2048)
                 if message:
+
                     date_time = datetime.datetime.now()
                     sys.stdout.write("{} ".format(date_time))
                     sys.stdout.flush()
-                    # Check if it is a request for client list
+
                     if message.decode().split()[0] == "clients_list":
                         sendClientList(name, conn)
-
                     """prints the message and address of the
                     user who just sent the message on the server
                     terminal"""
                     # print ("<" + name + "> " + message.decode())
-                    sendMessage(message.decode(), name)
-
+                    if (name != "server_master"):
+                        sendMessage(message.decode(), name)
+                    else:
+                        serverMessage(message.decode(), conn)
                     # Calls broadcast function to send message to all
                     # message_to_send = "<" + name + "> " + message.decode()
                     # broadcast(message_to_send, conn)
@@ -88,6 +107,19 @@ def clientthread(conn, addr):
             except:
                 continue
 
+def serverMessage(message, conn):
+    message_part = message.split(";")[0]
+    if (message_part == "game_state"):
+        messsage_to_send = client_directory.getGameState()
+        conn.send(str(messsage_to_send).encode())
+        print ("Server requested GameState")
+
+    elif (message_part == "delete"):
+        name_to_delete = message_part.split(";")[1]
+        if client_directory.deleteClient(name_to_delete) == 1:
+            conn.send("Deleted {}".format(name_to_delete))
+        else:
+            conn.send("Failed to delete {}".format(name_to_delete))
 
 def sendMessage(message, sender):
     message_parts = message.split(";")
@@ -121,7 +153,10 @@ def sendMessage(message, sender):
                     print ("Lost connection with {}".format(conn))
 
 def sendClientList(name, conn):
-    print ("Client list requested by {}".format(name))
+    if name != "server_master":
+        print ("Client list requested by {}".format(name))
+    else:
+        print ("Client list requested by Server")
     message = str(client_directory.getAllClients())
     conn.send(message.encode())
 
@@ -140,7 +175,6 @@ def broadcast(message, connection):
                 # if the link is broken, we remove the client
                 client_directory.deleteConn(conn)
                 print ("Lost connection with {}".format(conn))
-
 
 while True:
 

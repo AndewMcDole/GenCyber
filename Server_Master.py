@@ -1,14 +1,18 @@
 #!/usr/local/bin/python3
 
+
+# The Students DO NOT GET A COPY of This
+# This is to be used to issue commands to the server
+# without the commands being displayed on the server itself
+
+
 import socket
 import select
 import sys
 import datetime
 
-import ChaffFactory
-
 def displayHelpMenu():
-    listOfCommands = ["Send", "Who", "Help"]
+    listOfCommands = ["Game_State", "Delete", "Who", "Help"]
     print ("List of commands: {}".format(listOfCommands))
 
 def requestClients(socks):
@@ -33,28 +37,18 @@ Port = int(sys.argv[2])
 server.connect((IP_address, Port))
 
 #User setup
-name = input("Who are you? ")
+name = "server_master"
 server.send(name.encode())
 
 # Receive the opening message
 message = server.recv(2048)
 print (message.decode())
 
-# Receive stone setup
-message = server.recv(2048)
-print (message.decode())
-
-# receive Secret Key as a base 32 number
-SECRET_KEY = int(server.recv(2048).decode())
-print ("Secret Key: {}".format(SECRET_KEY))
-
 while True:
 
     # maintains a list of possible input streams
     sockets_list = [sys.stdin, server]
 
-    # used for chaffing/winnowing
-    CF = ChaffFactory.ChaffFactory()
 
     sys.stdout.write("> ")
     sys.stdout.flush()
@@ -73,38 +67,24 @@ while True:
         if socks == server:
             message = socks.recv(2048)
 
-            # Once we receive a message, we need to strip off the name and winnow the message
-            message_parts = message.decode().split(";")
-
             date_time = datetime.datetime.now()
-            sys.stdout.write("{} ".format(date_time))
+            sys.stdout.write("{} {}".format(date_time, message.decode()))
             sys.stdout.flush()
 
-            print (" {} <".format(message_parts[0]))
-            message_to_winnow = ""
-            for message_part in message_parts[1:-2]:
-                message_to_winnow = message_to_winnow + message_part + ";"
-
-            CF.winnow(message_to_winnow, SECRET_KEY)
         else:
             message = sys.stdin.readline()
 
             #Allow the user to begin sending a messge by typing in "send"
             command = message.split()[0]
 
-            if (compareStrings(command, "send")):
-                message = input("Who to write to: ")
+            if (compareStrings(command, "game_state")):
+                server.send("game_state;".encode())
+                print(server.recv(4096).decode())
 
-                # Remove the \n created by readline()
-                message = message.split("\n")[0]
-
-                # Once the user types a name to send, ask for a message to write
-                message = message + ";" + CF.constructMessage(SECRET_KEY)
-
+            elif (compareStrings(command, "delete")):
+                name_to_delete = input ("Who to delete: ")
+                message = "delete;" + name_to_delete
                 server.send(message.encode())
-                sys.stdout.write("<You>")
-                sys.stdout.write(message + "\n")
-                sys.stdout.flush()
 
             elif compareStrings(command, "help"):
                 displayHelpMenu()

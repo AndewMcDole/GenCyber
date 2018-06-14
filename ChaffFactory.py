@@ -3,7 +3,6 @@
 import random
 import Hashing
 
-SECRET_KEY = 123
 
 class ChaffFactory:
 
@@ -11,7 +10,7 @@ class ChaffFactory:
         self.numberOfChaffs = 3 # Includes the one True message
         self.phrases = []
 
-    def constructMessage(self):
+    def constructMessage(self, SECRET_KEY):
         phrase = input ("Enter your correct message: ")
         phrase = phrase + ";" + Hashing.get_hash_(phrase, str(SECRET_KEY)) + ";"
         self.phrases.append(phrase)
@@ -25,7 +24,7 @@ class ChaffFactory:
             phrase += x
         return phrase
 
-    def winnow(self, message):
+    def winnow(self, message, SECRET_KEY):
         list = message.split(";")
         line = ""
         for x in range(len(list)):

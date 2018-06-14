@@ -115,6 +115,8 @@ class ClientDirectory:
                 for y in range(x, self.numberOfClients - 1):
                     self.matrix[y][0] = self.matrix[y + 1][0]
                     self.matrix[y][1] = self.matrix[y + 1][1]
+                    self.matrix[y][2] = self.matrix[y + 1][2]
+                    self.matrix[y][3] = self.matrix[y + 1][3]
                 self.numberOfClients -= 1
                 return 1
         return -1
@@ -126,6 +128,8 @@ class ClientDirectory:
                 for y in range(x, self.numberOfClients - 1):
                     self.matrix[y][0] = self.matrix[y + 1][0]
                     self.matrix[y][1] = self.matrix[y + 1][1]
+                    self.matrix[y][2] = self.matrix[y + 1][2]
+                    self.matrix[y][3] = self.matrix[y + 1][3]
                 self.numberOfClients -= 1
                 return 1
         return -1
@@ -133,6 +137,13 @@ class ClientDirectory:
     def display(self):
         for x in range(self.numberOfClients):
             print(self.matrix[x])
+
+    def getGameState(self):
+        message_to_send = " "
+        for client in range(self.numberOfClients):
+            message_to_send = message_to_send + str(self.matrix[client])
+            # print (message_to_send)
+        return message_to_send
 
     def compareStrings(self, str1, str2):
         str1 = str1.replace(" ", "")
