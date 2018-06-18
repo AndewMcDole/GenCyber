@@ -6,6 +6,7 @@ import random
 import select
 import sys
 import datetime
+import time
 from _thread import *
 import netifaces as ni
 ni.ifaddresses('en0')
@@ -69,6 +70,8 @@ def clientthread(conn, addr):
         stones, location = client_directory.addClient(name, conn)
         conn.send("You have {}\nLocation: {}".format(stones, location).encode())
 
+        # Wait before sending again or the client will receive the data incorrectly
+        time.sleep(.2)
         # Send secret key
         conn.send(SECRET_KEY.encode())
 
@@ -123,6 +126,7 @@ def serverMessage(message, conn):
 
 def sendMessage(message, sender):
     message_parts = message.split(";")
+    del message_parts[-1] # remove the last element
     # Locates connection associated with name of client
     destination_client = message_parts[0]
     destination_client_conn = client_directory.findClient(destination_client)
@@ -132,7 +136,15 @@ def sendMessage(message, sender):
 
     # findClient() returns -1 if the client isn't found
     if destination_client_conn != -1:
-        print ("<{} to {}> {}".format(sender, destination_client, message))
+        print ("<{} to {}>".format(sender, destination_client))
+
+        for i in range(len(message_parts))[1:]:
+            if i % 2 == 1:
+                sys.stdout.write("{} ".format(message_parts[i]))
+                sys.stdout.flush()
+            else:
+                sys.stdout.write("{}\n".format(message_parts[i]))
+                sys.stdout.flush()
 
         # Remove the receiver name from the beginning and prepend on the sender name
         message_to_send = sender + ";"

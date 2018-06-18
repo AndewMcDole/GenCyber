@@ -9,12 +9,12 @@ import ChaffFactory
 
 def displayHelpMenu():
     listOfCommands = ["Send", "Who", "Help"]
-    print ("List of commands: {}".format(listOfCommands))
+    print ("List of commands: {}\n".format(listOfCommands))
 
 def requestClients(socks):
     socks.send("clients_list".encode())
     message = socks.recv(2048)
-    print (message.decode())
+    print (message.decode(), "\n")
 
 def compareStrings(str1, str2):
     str1 = str1.replace(" ", "")
@@ -86,6 +86,7 @@ while True:
                 message_to_winnow = message_to_winnow + message_part + ";"
 
             CF.winnow(message_to_winnow, SECRET_KEY)
+            print ()
         else:
             message = sys.stdin.readline()
 
@@ -102,9 +103,7 @@ while True:
                 message = message + ";" + CF.constructMessage(SECRET_KEY)
 
                 server.send(message.encode())
-                sys.stdout.write("<You>")
-                sys.stdout.write(message + "\n")
-                sys.stdout.flush()
+                print ("Message Sent Successfully\n")
 
             elif compareStrings(command, "help"):
                 displayHelpMenu()
