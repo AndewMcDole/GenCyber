@@ -7,6 +7,7 @@ import datetime
 
 import ChaffFactory
 
+
 def displayHelpMenu():
     listOfCommands = ["Send", "Who", "Help"]
     print ("List of commands: {}\n".format(listOfCommands))
