@@ -21,7 +21,7 @@ def check_hash(message, hash, key):
     if hash_ == hash:
         return("Hashes Match")
     else:
-        return("Hashed Do Not Match")
+        return("Hashes Do Not Match")
 
 
 
