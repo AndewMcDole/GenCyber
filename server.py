@@ -8,8 +8,6 @@ import sys
 import datetime
 import time
 from _thread import *
-import netifaces as ni
-ni.ifaddresses('en0')
 
 import ClientDirectory
 
@@ -22,18 +20,17 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 # checks whether sufficient arguments have been provided
-if len(sys.argv) != 3:
-    print ("Correct usage: script, port number, number of clients")
+if len(sys.argv) != 4:
+    print ("Correct usage: script, ip address, port number, number of clients")
     exit()
 
-# ip address is found using netifaces and is the machine this script is called from
-IP_address = ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
+IP_address = sys.argv[1]
 
 # takes first argument from command prompt as port number
-Port = int(sys.argv[1])
+Port = int(sys.argv[2])
 
 # tales second argument from command prompt as number of clients
-Number_Of_Clients = int(sys.argv[2])
+Number_Of_Clients = int(sys.argv[3])
 """
 binds the server to an entered IP address and at the
 specified port number.
