@@ -7,7 +7,6 @@ import datetime
 
 import ChaffFactory
 
-
 def displayHelpMenu():
     listOfCommands = ["Send", "Who", "Help"]
     print ("List of commands: {}\n".format(listOfCommands))
@@ -33,13 +32,26 @@ IP_address = str(sys.argv[1])
 Port = int(sys.argv[2])
 server.connect((IP_address, Port))
 
-#User setup
-name = input("Who are you? ")
+"""
+Here we receive the opening message from the Server and ask the User
+to pick a name from the provided list. The Server will continue to
+ask for a name until one has been entered correctly.
+"""
+print(server.recv(2048).decode())
+name = input("\nSelect your character:  ")
 server.send(name.encode())
+valid_name = server.recv(1024).decode()
 
+while valid_name == "false":
+    print(server.recv(2048).decode())
+    name = input("\nSelect your character:  ")
+    server.send(name.encode())
+
+"""
 # Receive the opening message
 message = server.recv(2048)
 print (message.decode())
+"""
 
 # Receive stone setup
 message = server.recv(2048)
