@@ -73,6 +73,8 @@ while True:
 
         else:
             message = sys.stdin.readline()
+            if message == "\n":
+                break;
 
             #Allow the user to begin sending a messge by typing in "send"
             command = message.split()[0]

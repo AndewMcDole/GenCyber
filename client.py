@@ -7,6 +7,11 @@ import datetime
 
 import ChaffFactory
 
+def checkForConnectionLoss(message):
+    if compareStrings(message.decode(), "-99"):
+        print ("Connection Closed")
+        sys.exit()
+
 def displayHelpMenu():
     listOfCommands = ["Send", "Who", "Help"]
     print ("List of commands: {}\n".format(listOfCommands))
@@ -14,6 +19,7 @@ def displayHelpMenu():
 def requestClients(socks):
     socks.send("clients_list".encode())
     message = socks.recv(2048)
+    checkForConnectionLoss(message)
     print (message.decode(), "\n")
 
 def compareStrings(str1, str2):
@@ -73,6 +79,8 @@ while True:
         if socks == server:
             message = socks.recv(2048)
 
+            checkForConnectionLoss(message)
+
             # Once we receive a message, we need to strip off the name and winnow the message
             message_parts = message.decode().split(";")
 
@@ -89,6 +97,8 @@ while True:
             print ()
         else:
             message = sys.stdin.readline()
+            if message == "\n":
+                break;
 
             #Allow the user to begin sending a messge by typing in "send"
             command = message.split()[0]

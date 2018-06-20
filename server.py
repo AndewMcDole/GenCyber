@@ -75,15 +75,22 @@ def clientthread(conn, addr):
         # prints the name and address of the user that just connected
         print (name + " connected on " + addr[0])
 
-
     while True:
             try:
                 message = conn.recv(2048)
+                # Check if the user has been removed
+                # The user's name won't appear in the directory
+                if name != "server_master" and client_directory.findClient(name) == -1:
+                    conn.send("-99".encode())
+                    print ("Ez clap")
+                    # remove(conn)
+
                 if message:
 
-                    date_time = datetime.datetime.now()
-                    sys.stdout.write("{} ".format(date_time))
-                    sys.stdout.flush()
+                    if name != "server_master":
+                        date_time = datetime.datetime.now()
+                        sys.stdout.write("{} ".format(date_time))
+                        sys.stdout.flush()
 
                     if message.decode().split()[0] == "clients_list":
                         sendClientList(name, conn)
@@ -102,6 +109,7 @@ def clientthread(conn, addr):
                 else:
                     """message may have no content if the connection
                     is broken, in this case we remove the connection"""
+                    client_directory.deleteClient(name)
                     remove(conn)
 
             except:
@@ -112,14 +120,16 @@ def serverMessage(message, conn):
     if (message_part == "game_state"):
         messsage_to_send = client_directory.getGameState()
         conn.send(str(messsage_to_send).encode())
-        print ("Server requested GameState")
 
     elif (message_part == "delete"):
-        name_to_delete = message_part.split(";")[1]
+        name_to_delete = message.split(";")[1]
         if client_directory.deleteClient(name_to_delete) == 1:
-            conn.send("Deleted {}".format(name_to_delete))
+            message = "Deleted {}".format(name_to_delete)
+            conn.send(message.encode())
         else:
-            conn.send("Failed to delete {}".format(name_to_delete))
+            message = "Failed to delete {}".format(name_to_delete)
+            conn.send(message.encode())
+        client_directory.getAllClients()
 
 def sendMessage(message, sender):
     message_parts = message.split(";")
