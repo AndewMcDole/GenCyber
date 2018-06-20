@@ -43,6 +43,7 @@ if len(sys.argv) != 3:
 IP_address = str(sys.argv[1])
 Port = int(sys.argv[2])
 server.connect((IP_address, Port))
+server.send("client".encode())
 
 """
 Here we receive the opening message from the Server and ask the User

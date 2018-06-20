@@ -56,34 +56,40 @@ def generateSecretKey(key_length):
 SECRET_KEY = generateSecretKey(12)
 
 def clientthread(conn, addr):
-
+    name = conn.recv(1024).decode()
     """
     Here we send the opening message to the client and determine who the User
     would like to play the game as. Client Directory supplies a pre-determined
     list of names to chose from. We will continue to ask for a name until it
     has been entered correctly.
     """
-    message = "Welcome to the Avenger's Stone Hunt Game!\nWho are you?\n" + client_directory.getRemainingNames()
-    conn.send(message.encode())
-    name = conn.recv(2048).decode()
-    valid = str(client_directory.validName(name))
-    conn.send(valid.encode())
-    # Wait before sending again or the client will receive the data incorrectly
-    time.sleep(.2)
 
-    while client_directory.validName(name) == "false":
-        message = "The available characters are as follows:\n" + client_directory.getRemainingNames()
-        conn.send((message.encode()))
+    if (name != "server_master"):
+        message = "Welcome to the Avenger's Stone Hunt Game!\nWho are you?\n" + client_directory.getRemainingNames()
+        conn.send(message.encode())
         name = conn.recv(2048).decode()
-        if client_directory.validName(name) == "false":
-            conn.send("false".encode())
-        else:
-            conn.send("true".encode())
+        valid = str(client_directory.validName(name))
+        conn.send(valid.encode())
+        # Wait before sending again or the client will receive the data incorrectly
+        time.sleep(.2)
 
-    client_directory.namePicked(name)
+        while client_directory.validName(name) == "false":
+            message = "The available characters are as follows:\n" + client_directory.getRemainingNames()
+            conn.send((message.encode()))
+            name = conn.recv(2048).decode()
+            if client_directory.validName(name) == "false":
+                conn.send("false".encode())
+            else:
+                conn.send("true".encode())
 
-    """Maintains a list of clients for ease of broadcasting
-    a message to all available people in the chatroom"""
+        client_directory.namePicked(name)
+
+        """Maintains a list of clients for ease of broadcasting
+        a message to all available people in the chatroom"""
+    else:
+        message = "Welcome to the Avenger's Stone Hunt Game!\nYou are admin"
+        conn.send(message.encode())
+
     if (name != "server_master"):
         stones, location = client_directory.addClient(name, conn)
         conn.send("{};{};{}".format(stones, location, SECRET_KEY).encode())
@@ -137,6 +143,7 @@ def serverMessage(message, conn):
         name_to_delete = message.split(";")[1]
         if client_directory.deleteClient(name_to_delete) == 1:
             message = "Deleted {}".format(name_to_delete)
+            print ("Lost connection with {}".format(name_to_delete))
             conn.send(message.encode())
         else:
             message = "Failed to delete {}".format(name_to_delete)
