@@ -58,6 +58,8 @@ while valid_name == "false":
     print(server.recv(2048).decode())
     name = input("\nSelect your character:  ")
     server.send(name.encode())
+    valid_name = server.recv(1024).decode()
+
 
 """
 # Receive the opening message

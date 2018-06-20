@@ -75,6 +75,10 @@ def clientthread(conn, addr):
         message = "The available characters are as follows:\n" + client_directory.getRemainingNames()
         conn.send((message.encode()))
         name = conn.recv(2048).decode()
+        if client_directory.validName(name) == "false":
+            conn.send("false".encode())
+        else:
+            conn.send("true".encode())
 
     client_directory.namePicked(name)
 
