@@ -57,9 +57,26 @@ SECRET_KEY = generateSecretKey(12)
 
 def clientthread(conn, addr):
 
-    # sends a message to the client whose user object is conn
-    conn.send("Welcome to the Avenger's Stone Hunt Game!".encode())
+    """
+    Here we send the opening message to the client and determine who the User
+    would like to play the game as. Client Directory supplies a pre-determined
+    list of names to chose from. We will continue to ask for a name until it
+    has been entered correctly.
+    """
+    message = "Welcome to the Avenger's Stone Hunt Game!\nWho are you?\n" + client_directory.getRemainingNames()
+    conn.send(message.encode())
     name = conn.recv(2048).decode()
+    valid = str(client_directory.validName(name))
+    conn.send(valid.encode())
+    # Wait before sending again or the client will receive the data incorrectly
+    time.sleep(.2)
+
+    while client_directory.validName(name) == "false":
+        message = "The available characters are as follows:\n" + client_directory.getRemainingNames()
+        conn.send((message.encode()))
+        name = conn.recv(2048).decode()
+
+    client_directory.namePicked(name)
 
     """Maintains a list of clients for ease of broadcasting
     a message to all available people in the chatroom"""
