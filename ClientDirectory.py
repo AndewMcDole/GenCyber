@@ -167,6 +167,9 @@ class ClientDirectory:
             connList.append(self.matrix[client][1])
         return connList
 
+    def getAllLocations(self):
+        return list_of_locations
+
     def getRemainingNames(self):
         names = ""
         count = 1
@@ -189,6 +192,9 @@ if __name__ == "__main__":
     cd = ClientDirectory(4)
     cd.addClient("Iron Man", 2)
     cd.addClient("Captain", 3)
+    print (cd.getAllClients())
+
+    cd.deleteClient("Iron Man")
     print (cd.getAllClients())
 
     message = "captain\n;Hello;123;Fake;123;Fake;123"
