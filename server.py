@@ -82,8 +82,8 @@ def clientthread(conn, addr):
                 # The user's name won't appear in the directory
                 if name != "server_master" and client_directory.findClient(name) == -1:
                     conn.send("-99".encode())
-                    print ("Ez clap")
-                    # remove(conn)
+                    remove(conn)
+                    print ("{} lost connection".format(name))
 
                 if message:
 
@@ -94,17 +94,13 @@ def clientthread(conn, addr):
 
                     if message.decode().split()[0] == "clients_list":
                         sendClientList(name, conn)
-                    """prints the message and address of the
-                    user who just sent the message on the server
-                    terminal"""
-                    # print ("<" + name + "> " + message.decode())
-                    if (name != "server_master"):
-                        sendMessage(message.decode(), name)
+                    elif message.decode().split()[0] == "location_list":
+                        sendLocationsList(name, conn)
                     else:
-                        serverMessage(message.decode(), conn)
-                    # Calls broadcast function to send message to all
-                    # message_to_send = "<" + name + "> " + message.decode()
-                    # broadcast(message_to_send, conn)
+                        if (name != "server_master"):
+                            sendMessage(message.decode(), name)
+                        else:
+                            serverMessage(message.decode(), conn)
 
                 else:
                     """message may have no content if the connection
@@ -153,6 +149,9 @@ def sendMessage(message, sender):
                 sys.stdout.write("{}\n".format(message_parts[i]))
                 sys.stdout.flush()
 
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+
         # Remove the receiver name from the beginning and prepend on the sender name
         message_to_send = sender + ";"
         # print (message_parts)
@@ -177,6 +176,14 @@ def sendClientList(name, conn):
     else:
         print ("Client list requested by Server")
     message = str(client_directory.getAllClients())
+    conn.send(message.encode())
+
+def sendLocationsList(name, conn):
+    if name != "server_master":
+        print ("Location list requested by {}".format(name))
+    else:
+        print ("Location list requested by Server")
+    message = str(client_directory.getAllLocations())
     conn.send(message.encode())
 
 """Using the below function, we broadcast the message to all

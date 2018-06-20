@@ -165,6 +165,9 @@ class ClientDirectory:
             connList.append(self.matrix[client][1])
         return connList
 
+    def getAllLocations(self):
+        return list_of_locations
+
 if __name__ == "__main__":
     cd = ClientDirectory(4)
     cd.addClient("Iron Man", 2)

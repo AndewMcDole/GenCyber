@@ -13,11 +13,17 @@ def checkForConnectionLoss(message):
         sys.exit()
 
 def displayHelpMenu():
-    listOfCommands = ["Send", "Who", "Help"]
+    listOfCommands = ["Send", "Who", "Help", "Locations"]
     print ("List of commands: {}\n".format(listOfCommands))
 
 def requestClients(socks):
     socks.send("clients_list".encode())
+    message = socks.recv(2048)
+    checkForConnectionLoss(message)
+    print (message.decode(), "\n")
+
+def requestListOfLocations(socks):
+    socks.send("location_list".encode())
     message = socks.recv(2048)
     checkForConnectionLoss(message)
     print (message.decode(), "\n")
@@ -120,5 +126,8 @@ while True:
 
             elif compareStrings(command, "Who"):
                 requestClients(server)
+
+            elif compareStrings(command, "locations"):
+                requestListOfLocations(server)
 
 server.close()
