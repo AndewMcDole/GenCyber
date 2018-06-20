@@ -4,7 +4,7 @@ import socket
 import select
 import sys
 import datetime
-
+from termcolor import colored
 import ChaffFactory
 
 def checkForConnectionLoss(message):
@@ -67,12 +67,14 @@ message = server.recv(2048)
 print (message.decode())
 """
 
-# Receive stone setup
+# Receive stone setup and key
 message = server.recv(2048)
-print (message.decode())
-
-# receive Secret Key as a base 32 number
-SECRET_KEY = int(server.recv(2048).decode())
+message_parts = message.decode().split(";")
+stone_list = message_parts[0]
+print ("You have {}".format(stone_list))
+location = message_parts[1]
+print ("Location: {}".format(location))
+SECRET_KEY = int(message_parts[2])
 print ("Secret Key: {}".format(SECRET_KEY))
 
 while True:
@@ -83,7 +85,8 @@ while True:
     # used for chaffing/winnowing
     CF = ChaffFactory.ChaffFactory()
 
-    sys.stdout.write("> ")
+    # colored('hello', 'red')
+    sys.stdout.write("{}@{}$ ".format(colored(name, "red"), colored(location, "green")))
     sys.stdout.flush()
 
     """ There are two possible input situations. Either the

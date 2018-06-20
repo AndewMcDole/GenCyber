@@ -86,12 +86,7 @@ def clientthread(conn, addr):
     a message to all available people in the chatroom"""
     if (name != "server_master"):
         stones, location = client_directory.addClient(name, conn)
-        conn.send("You have {}\nLocation: {}".format(stones, location).encode())
-
-        # Wait before sending again or the client will receive the data incorrectly
-        time.sleep(.2)
-        # Send secret key
-        conn.send(SECRET_KEY.encode())
+        conn.send("{};{};{}".format(stones, location, SECRET_KEY).encode())
 
         # prints the name and address of the user that just connected
         print (name + " connected on " + addr[0])
