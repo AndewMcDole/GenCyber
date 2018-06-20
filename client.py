@@ -7,7 +7,6 @@ import datetime
 
 import ChaffFactory
 
-
 def displayHelpMenu():
     listOfCommands = ["Send", "Who", "Help"]
     print ("List of commands: {}\n".format(listOfCommands))
@@ -68,7 +67,7 @@ while True:
     to send a message, then the if condition will hold true
     below.If the user wants to send a message, the else
     condition will evaluate as true"""
-    read_sockets,write_socket, error_socket = select.select(sockets_list,[],[])
+    read_sockets, write_socket, error_socket = select.select(sockets_list,[],[])
 
     for socks in read_sockets:
         if socks == server:
