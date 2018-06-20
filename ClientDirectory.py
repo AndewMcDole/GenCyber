@@ -14,6 +14,8 @@ for line in location_list_file:
     num_locations = num_locations + 1
 
 list_of_stones = ["No Stone", "Space Stone", "Reality Stone", "Power Stone", "Mind Stone", "Soul Stone", "Time Stone", "Gatherer"]
+list_of_names = ["Iron Man", "Captain America", "Black Panther", "Thor", "Black Widow", "Hulk", "Vision", "Star Lord", "Groot"]
+names_chosen = []
 garbage_list = []
 
 class ClientDirectory:
@@ -165,13 +167,32 @@ class ClientDirectory:
             connList.append(self.matrix[client][1])
         return connList
 
-    def getAllLocations(self):
-        return list_of_locations
+    def getRemainingNames(self):
+        names = ""
+        count = 1
+        for name in list_of_names:
+            names += ("\n" + str(count) + ". " + name)
+            count += 1
+        return str(names)
 
+    def validName(self, name):
+        if name in list_of_names:
+            return "true"
+        return "false"
+
+    def namePicked(self, name):
+        list_of_names.remove(name)
+        names_chosen.append(name)
+
+"""
 if __name__ == "__main__":
     cd = ClientDirectory(4)
     cd.addClient("Iron Man", 2)
     cd.addClient("Captain", 3)
     print (cd.getAllClients())
-    cd.deleteClient("Iron Man")
-    print (cd.getAllClients())
+
+    message = "captain\n;Hello;123;Fake;123;Fake;123"
+    destination_client = message.split(";")[0]
+
+    print ("Find Client: {}".format(cd.findClient(destination_client)))
+"""

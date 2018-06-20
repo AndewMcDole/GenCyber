@@ -44,13 +44,26 @@ IP_address = str(sys.argv[1])
 Port = int(sys.argv[2])
 server.connect((IP_address, Port))
 
-#User setup
-name = input("Who are you? ")
+"""
+Here we receive the opening message from the Server and ask the User
+to pick a name from the provided list. The Server will continue to
+ask for a name until one has been entered correctly.
+"""
+print(server.recv(2048).decode())
+name = input("\nSelect your character:  ")
 server.send(name.encode())
+valid_name = server.recv(1024).decode()
 
+while valid_name == "false":
+    print(server.recv(2048).decode())
+    name = input("\nSelect your character:  ")
+    server.send(name.encode())
+
+"""
 # Receive the opening message
 message = server.recv(2048)
 print (message.decode())
+"""
 
 # Receive stone setup
 message = server.recv(2048)
@@ -79,7 +92,7 @@ while True:
     to send a message, then the if condition will hold true
     below.If the user wants to send a message, the else
     condition will evaluate as true"""
-    read_sockets,write_socket, error_socket = select.select(sockets_list,[],[])
+    read_sockets, write_socket, error_socket = select.select(sockets_list,[],[])
 
     for socks in read_sockets:
         if socks == server:
