@@ -7,6 +7,21 @@ import datetime
 from termcolor import colored, cprint
 import ChaffFactory
 
+def printPrompt(color, effect):
+    if color != "none" and effect != "none":
+        # colored('hello', 'red')
+        sys.stdout.write("{}@{}$ ".format(colored(name, color, attrs=effect), colored(location, "green")))
+        sys.stdout.flush()
+    elif color != "none":
+        sys.stdout.write("{}@{}$ ".format(colored(name, color), colored(location, "green")))
+        sys.stdout.flush()
+    elif effect != "none":
+        sys.stdout.write("{}@{}$ ".format(colored(name, "white", attrs=effect), colored(location, "green")))
+        sys.stdout.flush()
+    else:
+        sys.stdout.write("{}@{}$ ".format(name, colored(location, "green")))
+        sys.stdout.flush()
+
 def checkForConnectionLoss(message):
     if compareStrings(message.decode(), "-99"):
         print ("Connection Closed")
@@ -65,7 +80,7 @@ while valid_name == "false":
 Allow the user to pick their color of choice for their character
 """
 valid_choice = False
-list_of_colors = ["none","grey", "red", "green", "yellow", "blue", "magenta","cyan","white"]
+list_of_colors = ["none", "red", "green", "yellow", "blue", "magenta","cyan","white"]
 color_choice = ""
 print (list_of_colors)
 while not valid_choice:
@@ -86,8 +101,11 @@ valid_choice = False
 print (list_of_effects)
 effect_choice = []
 while not valid_choice:
-    effect_choice.append(input ("Please select an effect: ").lower())
-    if effect_choice[0] in list_of_effects:
+    user_input = input ("Please select an effect: ").lower()
+    if user_input == "none":
+        break
+    if user_input in list_of_effects:
+        effect_choice.append(user_input)
         valid_choice = True
 
 
@@ -115,9 +133,7 @@ while True:
     # used for chaffing/winnowing
     CF = ChaffFactory.ChaffFactory()
 
-    # colored('hello', 'red')
-    sys.stdout.write("{}@{}$ ".format(colored(name, color_choice, attrs=effect_choice), colored(location, "green")))
-    sys.stdout.flush()
+    printPrompt(color_choice, effect_choice)
 
     """ There are two possible input situations. Either the
     user wants to give  manual input to send to other people,
