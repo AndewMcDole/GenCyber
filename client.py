@@ -4,7 +4,7 @@ import socket
 import select
 import sys
 import datetime
-from termcolor import colored
+from termcolor import colored, cprint
 import ChaffFactory
 
 def checkForConnectionLoss(message):
@@ -61,6 +61,35 @@ while valid_name == "false":
     server.send(name.encode())
     valid_name = server.recv(1024).decode()
 
+"""
+Allow the user to pick their color of choice for their character
+"""
+valid_choice = False
+list_of_colors = ["none","grey", "red", "green", "yellow", "blue", "magenta","cyan","white"]
+color_choice = ""
+print (list_of_colors)
+while not valid_choice:
+    color_choice = input ("Please select a color: ").lower()
+    if color_choice in list_of_colors:
+        valid_choice = True
+
+# list_of_backgrounds = ["none","grey", "red", "green", "yellow", "blue", "magenta","cyan","white"]
+# valid_choice = False
+# print (list_of_backgrounds)
+# while not valid_choice:
+#     bg_choice = input ("Please select a background: ").lower()
+#     if bg_choice in list_of_backgrounds:
+#         valid_choice = True
+
+list_of_effects = ["none","bold","dark","blink","reverse"]
+valid_choice = False
+print (list_of_effects)
+effect_choice = []
+while not valid_choice:
+    effect_choice.append(input ("Please select an effect: ").lower())
+    if effect_choice[0] in list_of_effects:
+        valid_choice = True
+
 
 """
 # Receive the opening message
@@ -87,7 +116,7 @@ while True:
     CF = ChaffFactory.ChaffFactory()
 
     # colored('hello', 'red')
-    sys.stdout.write("{}@{}$ ".format(colored(name, "red"), colored(location, "green")))
+    sys.stdout.write("{}@{}$ ".format(colored(name, color_choice, attrs=effect_choice), colored(location, "green")))
     sys.stdout.flush()
 
     """ There are two possible input situations. Either the
