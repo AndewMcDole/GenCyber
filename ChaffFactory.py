@@ -2,6 +2,7 @@
 
 import random
 import Hashing
+from termcolor import colored, cprint
 
 
 class ChaffFactory:
@@ -34,8 +35,13 @@ class ChaffFactory:
                 line += " "
             else:
                 line += list[x]
-                line = line + " " + Hashing.check_hash(list[x - 1], list[x], str(SECRET_KEY))
-                print (line)
+                hash_result = Hashing.check_hash(list[x - 1], list[x], str(SECRET_KEY))
+                if hash_result:
+                    line = line + " Hashes Match"
+                    print (colored(line, "green"))
+                else:
+                    line = line + " Hashes Do Not Match"
+                    print (colored(line, "red"))
                 line = ""
 
 if __name__ == "__main__":

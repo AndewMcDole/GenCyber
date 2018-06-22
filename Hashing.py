@@ -19,9 +19,9 @@ def get_hash_(message, k):
 def check_hash(message, hash, key):
     hash_ = get_hash_(message, key)
     if hash_ == hash:
-        return("Hashes Match")
+        return True
     else:
-        return("Hashes Do Not Match")
+        return False
 
 
 

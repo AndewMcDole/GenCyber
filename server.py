@@ -163,7 +163,7 @@ def sendMessage(message, sender):
 
     # findClient() returns -1 if the client isn't found
     if destination_client_conn != -1:
-        print ("<{} to {}>".format(colored(sender, "green"), colored(destination_client, "green")))
+        print ("<{} to {}>".format(colored(sender, "cyan"), colored(destination_client, "green")))
 
         for i in range(len(message_parts))[1:]:
             if i % 2 == 1:
