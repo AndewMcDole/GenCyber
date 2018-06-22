@@ -242,14 +242,18 @@ def broadcast(message, connection):
                 client_directory.deleteConn(conn)
                 print ("Lost connection with {}".format(conn))
 
-while True:
+try:
+    while True:
 
-    """Accepts a connection request and stores two parameters,
-    conn which is a socket object for that user, and addr
-    which contains the IP address of the client that just
-    connected"""
-    conn, addr = server.accept()
+        """Accepts a connection request and stores two parameters,
+        conn which is a socket object for that user, and addr
+        which contains the IP address of the client that just
+        connected"""
+        conn, addr = server.accept()
 
-    # creates and individual thread for every user
-    # that connects
-    start_new_thread(clientthread,(conn,addr))
+        # creates and individual thread for every user
+        # that connects
+        start_new_thread(clientthread,(conn,addr))
+except (KeyboardInterrupt):
+    print ("\nServer stopped")
+    sys.exit(0)
