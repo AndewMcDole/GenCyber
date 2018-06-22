@@ -7,6 +7,7 @@ import select
 import sys
 import datetime
 import time
+from termcolor import colored, cprint
 from _thread import *
 
 import ClientDirectory
@@ -162,22 +163,21 @@ def sendMessage(message, sender):
 
     # findClient() returns -1 if the client isn't found
     if destination_client_conn != -1:
-        print ("<{} to {}>".format(sender, destination_client))
+        print ("<{} to {}>".format(colored(sender, "green"), colored(destination_client, "green")))
 
         for i in range(len(message_parts))[1:]:
             if i % 2 == 1:
                 sys.stdout.write("{} ".format(message_parts[i]))
                 sys.stdout.flush()
             else:
-                sys.stdout.write("{}\n".format(message_parts[i]))
+                sys.stdout.write("{}\n".format(colored(message_parts[i], "red")))
                 sys.stdout.flush()
 
         sys.stdout.write("\n")
         sys.stdout.flush()
 
         # Remove the receiver name from the beginning and prepend on the sender name
-        message_to_send = sender + ";"
-        # print (message_parts)
+        message_to_send = str(sender) + ";"
         for message_part in message_parts[1:]:
             message_to_send = message_to_send + message_part + ";"
 

@@ -160,7 +160,7 @@ while True:
 
             print (" {} <".format(message_parts[0]))
             message_to_winnow = ""
-            for message_part in message_parts[1:-2]:
+            for message_part in message_parts[1:-1]:
                 message_to_winnow = message_to_winnow + message_part + ";"
 
             CF.winnow(message_to_winnow, SECRET_KEY)
