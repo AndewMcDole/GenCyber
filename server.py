@@ -100,6 +100,12 @@ def clientthread(conn, addr):
 
     while True:
             try:
+                # check to see if all clients have disconnected, and shut down server
+                if client_directory.findClient(name) == -1:
+                    print ("{} has disconnected".format(name))
+                    # print (client_directory.getAllClients())
+                    return
+
                 message = conn.recv(2048)
                 # Check if the user has been removed
                 # The user's name won't appear in the directory
@@ -119,6 +125,8 @@ def clientthread(conn, addr):
                         sendClientList(name, conn)
                     elif message.decode().split()[0] == "location_list":
                         sendLocationsList(name, conn)
+                    elif message.decode().split()[0] == "disconnecting":
+                        disconnectClient(name, conn)
                     else:
                         if (name != "server_master"):
                             sendMessage(message.decode(), name)
@@ -209,6 +217,15 @@ def sendLocationsList(name, conn):
     message = str(client_directory.getAllLocations())
     conn.send(message.encode())
 
+def disconnectClient(name, conn):
+    print (name + " attempting to disconnect")
+    if client_directory.deleteClient(name) == 1:
+        conn.send("disconnect success".encode())
+        conn.close()
+
+    else:
+        conn.send("disconnect unsuccessful".encode())
+
 """Using the below function, we broadcast the message to all
 clients who's object is not the same as the one sending
 the message """
@@ -236,6 +253,3 @@ while True:
     # creates and individual thread for every user
     # that connects
     start_new_thread(clientthread,(conn,addr))
-
-conn.close()
-server.close()

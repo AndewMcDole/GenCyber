@@ -28,7 +28,7 @@ def checkForConnectionLoss(message):
         sys.exit()
 
 def displayHelpMenu():
-    listOfCommands = ["Send", "Who", "Help", "Locations"]
+    listOfCommands = ["Send", "Who", "Help", "Locations", "Exit"]
     print ("List of commands: {}\n".format(listOfCommands))
 
 def requestClients(socks):
@@ -50,6 +50,15 @@ def compareStrings(str1, str2):
         # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
         return True
     return False
+
+def exitSequence(conn):
+    conn.send("disconnecting".encode())
+    print ("Disconnecting from server...")
+    if conn.recv(1024).decode() == "disconnect success":
+        print ("Disconnect successful!")
+        sys.exit(0)
+    else:
+        print ("Disconnect unsuccessful")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
@@ -193,5 +202,8 @@ while True:
 
             elif compareStrings(command, "locations"):
                 requestListOfLocations(server)
+
+            elif compareStrings(command, "exit"):
+                exitSequence(server)
 
 server.close()

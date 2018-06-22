@@ -29,6 +29,9 @@ class ClientDirectory:
         self.targetNumberOfClients = numClients
         self.matrix = [[0 for x in range(4)] for y in range(self.maxNumberOfClients)]
 
+    def getNumClients(self):
+        return self.numberOfClients
+        
     def allClientsConnected(self):
         if (self.numberOfClients == self.maxNumberOfClients):
             return True

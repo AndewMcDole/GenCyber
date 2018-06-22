@@ -27,7 +27,6 @@ class ChaffFactory:
 
     def winnow(self, message, SECRET_KEY):
         list = message.split(";")
-        print ("List: {}".format(list))
         line = ""
         for x in range(len(list)):
             if x % 2 == 0:
