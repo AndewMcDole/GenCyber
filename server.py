@@ -91,10 +91,11 @@ def clientthread(conn, addr):
         message = "Welcome to the Avenger's Stone Hunt Game!\nYou are admin"
         conn.send(message.encode())
 
-    delimeter = ";@;"
     if (name != "server_master"):
         stones, location = client_directory.addClient(name, conn)
-        conn.send("{};;{};;{};;{}".format(stones, location, SECRET_KEY, delimeter).encode())
+        delimeter = "@@@"
+        fullMessageDelimeter = "+++"
+        conn.send("{};;{};;{};;{};;{}".format(stones, location, SECRET_KEY, delimeter, fullMessageDelimeter).encode())
 
         # prints the name and address of the user that just connected
         print (name + " connected on " + addr[0])
@@ -130,7 +131,7 @@ def clientthread(conn, addr):
                         disconnectClient(name, conn)
                     else:
                         if (name != "server_master"):
-                            sendMessage(message.decode(), delimeter, name)
+                            sendMessage(message.decode(), delimeter, fullMessageDelimeter, name)
                         else:
                             serverMessage(message.decode(), delimeter, conn)
 
@@ -160,7 +161,7 @@ def serverMessage(message, delimeter, conn):
             conn.send(message.encode())
         client_directory.getAllClients()
 
-def sendMessage(message, delimeter, sender):
+def sendMessage(message, delimeter, fullMessageDelimeter, sender):
     message_parts = message.split(delimeter)
     del message_parts[-1] # remove the last element
     # Locates connection associated with name of client
@@ -189,6 +190,7 @@ def sendMessage(message, delimeter, sender):
         message_to_send = str(sender) + delimeter
         for message_part in message_parts[1:]:
             message_to_send = message_to_send + message_part + delimeter
+        message_to_send += fullMessageDelimeter
 
         list_of_conns = client_directory.getAllConn()
         for conn in list_of_conns:
