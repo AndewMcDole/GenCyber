@@ -83,7 +83,12 @@ def clientthread(conn, addr):
             else:
                 conn.send("true".encode())
 
+        if int(name) >= 1 or int(name) < len(list_of_names):
+            name = client_directory.getName(int(name))
+
         client_directory.namePicked(name)
+
+        conn.send(name.encode())
 
         """Maintains a list of clients for ease of broadcasting
         a message to all available people in the chatroom"""
@@ -234,7 +239,7 @@ def compareStrings(self, str1, str2):
         # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
         return True
     return False
-    
+
 """Using the below function, we broadcast the message to all
 clients who's object is not the same as the one sending
 the message """

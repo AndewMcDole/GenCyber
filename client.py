@@ -89,6 +89,8 @@ while valid_name == "false":
     server.send(name.encode())
     valid_name = server.recv(1024).decode()
 
+name = server.recv(1024).decode()
+
 """
 Allow the user to pick their color of choice for their character
 """
@@ -196,7 +198,11 @@ while True:
                 message = message.split("\n")[0]
 
                 # Once the user types a name to send, ask for a message to write
-                message = message + delimeter + CF.constructMessage(SECRET_KEY, delimeter)
+                next_part = CF.constructMessage(SECRET_KEY, delimeter)
+                while compareStrings(next_part, 'redo'):
+                    print ("\nRestarting the message construction...\n")
+                    next_part = CF.constructMessage(SECRET_KEY, delimeter)
+                message = message + delimeter + next_part
 
                 server.send(message.encode())
                 print ("Message Sent Successfully\n")

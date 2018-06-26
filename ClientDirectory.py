@@ -14,7 +14,7 @@ for line in location_list_file:
     num_locations = num_locations + 1
 
 list_of_stones = ["No Stone", "Space Stone", "Reality Stone", "Power Stone", "Mind Stone", "Soul Stone", "Time Stone", "Gatherer"]
-list_of_names = ["Iron Man", "Captain America", "Black Panther", "Thor", "Black Widow", "Hulk", "Vision", "Star Lord", "Groot"]
+list_of_names = ["Iron Man", "Captain America", "Black Panther", "Thor", "Black Widow", "Hulk", "Vision", "Star Lord", "Groot", "Loki"]
 names_chosen = []
 garbage_list = []
 
@@ -123,8 +123,7 @@ class ClientDirectory:
                     self.matrix[y][2] = self.matrix[y + 1][2]
                     self.matrix[y][3] = self.matrix[y + 1][3]
                 self.numberOfClients -= 1
-                names_chosen.remove(name)
-                list_of_names.append(name)
+                self.removeName(name)
                 return 1
         return -1
 
@@ -185,15 +184,36 @@ class ClientDirectory:
 
     def validName(self, name):
         for name_ in list_of_names:
-            if compareStrings(name_, name):
-                return True
-        return False
+            if self.compareStrings(name_, name):
+                return 'true'
+
+            if int(name) < 1 or int(name) > len(list_of_names):
+                return 'false'
+            else:
+                return 'true'
+        return 'false'
 
     def namePicked(self, name):
-        for name_ in list_of_names:
-            if compareStrings(name_, name):
+        if isinstance(name, int):
+            if int(name) >= 1 or int(name) < len(list_of_names):
+                index = int(name) - 1
+                name_ = list_of_names[index]
                 list_of_names.remove(name_)
                 names_chosen.append(name_)
+        else:
+            for name_ in list_of_names:
+                if self.compareStrings(name_, name):
+                    list_of_names.remove(name_)
+                    names_chosen.append(name_)
+
+    def removeName(self, name):
+        for name_ in names_chosen:
+            if self.compareStrings(name_, name):
+                list_of_names.append(name_)
+                names_chosen.remove(name_)
+
+    def getName(self, index):
+        return list_of_names[index - 1]
 
 """
 if __name__ == "__main__":

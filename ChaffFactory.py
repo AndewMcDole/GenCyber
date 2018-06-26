@@ -12,11 +12,15 @@ class ChaffFactory:
         self.phrases = []
 
     def constructMessage(self, SECRET_KEY, delimeter):
+        phrase = ""
         phrase = input ("Enter your correct message: ")
         phrase = phrase + delimeter + Hashing.get_hash_(phrase, str(SECRET_KEY)) + delimeter
         self.phrases.append(phrase)
         for x in range (self.numberOfChaffs - 1):
             phrase = input ("Enter a fake message: ")
+            if self.compareStrings(phrase, 'redo'):
+                self.phrases.clear()
+                return phrase
             phrase = phrase + delimeter + Hashing.get_hash_(phrase, str(random.random() * SECRET_KEY)) + delimeter
             self.phrases.append(phrase)
         random.shuffle(self.phrases)
