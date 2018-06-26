@@ -14,7 +14,7 @@ for line in location_list_file:
     num_locations = num_locations + 1
 
 list_of_stones = ["No Stone", "Space Stone", "Reality Stone", "Power Stone", "Mind Stone", "Soul Stone", "Time Stone", "Gatherer"]
-list_of_names = ["Iron Man", "Captain America", "Black Panther", "Thor", "Black Widow", "Hulk", "Vision", "Star Lord", "Groot", "Loki"]
+list_of_names = ["Iron Man", "Captain America", "Black Panther", "Thor", "Black Widow", "Hulk", "Vision", "Star Lord", "Groot"]
 names_chosen = []
 garbage_list = []
 

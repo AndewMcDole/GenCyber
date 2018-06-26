@@ -18,7 +18,7 @@ class ChaffFactory:
         self.phrases.append(phrase)
         for x in range (self.numberOfChaffs - 1):
             phrase = input ("Enter a fake message: ")
-            if compareStrings(phrase, 'redo'):
+            if (self.compareStrings(phrase, 'redo')):
                 self.phrases.clear()
                 return phrase
             phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * SECRET_KEY)) + ";"
