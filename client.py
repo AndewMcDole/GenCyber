@@ -133,7 +133,6 @@ print (message.decode())
 # Receive stone setup and key
 message = server.recv(2048)
 message_parts = message.decode().split(";;")
-print ("Message Parts: {}".format(message_parts))
 stone_list = message_parts[0]
 print ("You have {}".format(stone_list))
 location = message_parts[1]
@@ -141,7 +140,7 @@ print ("Location: {}".format(location))
 SECRET_KEY = int(message_parts[2])
 print ("Secret Key: {}".format(SECRET_KEY))
 delimeter = str(message_parts[3])
-print ("Delimeter: {}".format(message_parts[3]))
+fullMessageDelimeter = str(message_parts[4])
 
 while True:
 
@@ -166,23 +165,25 @@ while True:
     for socks in read_sockets:
         if socks == server:
             message = socks.recv(2048)
-
             checkForConnectionLoss(message)
 
-            # Once we receive a message, we need to strip off the name and winnow the message
-            message_parts = message.decode().split(delimeter)
+            list_of_messages = message.decode().split(fullMessageDelimeter)
 
-            date_time = datetime.datetime.now()
-            sys.stdout.write("{} ".format(date_time))
-            sys.stdout.flush()
+            for message in list_of_messages[:-1]:
+                # Once we receive a message, we need to strip off the name and winnow the message
+                message_parts = message.split(delimeter)
 
-            print (" {} <".format(message_parts[0]))
-            message_to_winnow = ""
-            for message_part in message_parts[1:-1]:
-                message_to_winnow = message_to_winnow + message_part + delimeter
+                date_time = datetime.datetime.now()
+                sys.stdout.write("{} ".format(date_time))
+                sys.stdout.flush()
 
-            CF.winnow(message_to_winnow, SECRET_KEY, delimeter)
-            print ()
+                print (" {} <".format(message_parts[0]))
+                message_to_winnow = ""
+                for message_part in message_parts[1:-1]:
+                    message_to_winnow = message_to_winnow + message_part + delimeter
+
+                CF.winnow(message_to_winnow, SECRET_KEY, delimeter)
+                print ()
         else:
             message = sys.stdin.readline()
             if message == "\n":
@@ -192,7 +193,16 @@ while True:
             command = message.split()[0]
 
             if (compareStrings(command, "send")):
-                message = input("Who to write to: ")
+                validName = False
+                while not validName:
+                    message = input("Who to write to: ")
+
+                    # Check if client name is mistyped
+                    server.send(str("check_name " + message).encode())
+                    if (server.recv(1048).decode() != "success"):
+                        print ("Failed to send message: {} does not exist".format(message))
+                    else:
+                        validName = True
 
                 # Remove the \n created by readline()
                 message = message.split("\n")[0]
@@ -205,7 +215,7 @@ while True:
                 message = message + delimeter + next_part
 
                 server.send(message.encode())
-                print ("Message Sent Successfully\n")
+
 
             elif compareStrings(command, "help"):
                 displayHelpMenu()

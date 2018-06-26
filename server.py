@@ -96,10 +96,11 @@ def clientthread(conn, addr):
         message = "Welcome to the Avenger's Stone Hunt Game!\nYou are admin"
         conn.send(message.encode())
 
-    delimeter = ";@;"
     if (name != "server_master"):
         stones, location = client_directory.addClient(name, conn)
-        conn.send("{};;{};;{};;{}".format(stones, location, SECRET_KEY, delimeter).encode())
+        delimeter = "@@@"
+        fullMessageDelimeter = "+++"
+        conn.send("{};;{};;{};;{};;{}".format(stones, location, SECRET_KEY, delimeter, fullMessageDelimeter).encode())
 
         # prints the name and address of the user that just connected
         print (name + " connected on " + addr[0])
@@ -121,22 +122,23 @@ def clientthread(conn, addr):
                     print ("{} lost connection".format(name))
 
                 if message:
-
-                    if name != "server_master":
-                        date_time = datetime.datetime.now()
-                        sys.stdout.write("{} ".format(date_time))
-                        sys.stdout.flush()
-
                     if message.decode().split()[0] == "clients_list":
+                        printTimeStamp(name)
                         sendClientList(name, conn)
                     elif message.decode().split()[0] == "location_list":
+                        printTimeStamp(name)
                         sendLocationsList(name, conn)
                     elif message.decode().split()[0] == "disconnecting":
+                        printTimeStamp(name)
                         disconnectClient(name, conn)
+                    elif message.decode().split()[0] == "check_name":
+                        checkName(message.decode().split()[1], conn)
                     else:
                         if (name != "server_master"):
-                            sendMessage(message.decode(), delimeter, name)
+                            printTimeStamp(name)
+                            sendMessage(message.decode(), delimeter, fullMessageDelimeter, name)
                         else:
+                            printTimeStamp(name)
                             serverMessage(message.decode(), delimeter, conn)
 
                 else:
@@ -147,6 +149,19 @@ def clientthread(conn, addr):
 
             except:
                 continue
+
+def printTimeStamp(name):
+    if name != "server_master":
+        date_time = datetime.datetime.now()
+        sys.stdout.write("{} ".format(date_time))
+        sys.stdout.flush()
+
+def checkName(name, sender_conn):
+    destination_client_conn = client_directory.findClient(name)
+    if (destination_client_conn == -1):
+        sender_conn.send("failure".encode())
+    else:
+        sender_conn.send("success".encode())
 
 def serverMessage(message, delimeter, conn):
     message_part = message.split(delimeter)[0]
@@ -165,7 +180,7 @@ def serverMessage(message, delimeter, conn):
             conn.send(message.encode())
         client_directory.getAllClients()
 
-def sendMessage(message, delimeter, sender):
+def sendMessage(message, delimeter, fullMessageDelimeter, sender):
     message_parts = message.split(delimeter)
     del message_parts[-1] # remove the last element
     # Locates connection associated with name of client
@@ -194,6 +209,7 @@ def sendMessage(message, delimeter, sender):
         message_to_send = str(sender) + delimeter
         for message_part in message_parts[1:]:
             message_to_send = message_to_send + message_part + delimeter
+        message_to_send += fullMessageDelimeter
 
         list_of_conns = client_directory.getAllConn()
         for conn in list_of_conns:
