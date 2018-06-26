@@ -117,22 +117,23 @@ def clientthread(conn, addr):
                     print ("{} lost connection".format(name))
 
                 if message:
-
-                    if name != "server_master":
-                        date_time = datetime.datetime.now()
-                        sys.stdout.write("{} ".format(date_time))
-                        sys.stdout.flush()
-
                     if message.decode().split()[0] == "clients_list":
+                        printTimeStamp(name)
                         sendClientList(name, conn)
                     elif message.decode().split()[0] == "location_list":
+                        printTimeStamp(name)
                         sendLocationsList(name, conn)
                     elif message.decode().split()[0] == "disconnecting":
+                        printTimeStamp(name)
                         disconnectClient(name, conn)
+                    elif message.decode().split()[0] == "check_name":
+                        checkName(message.decode().split()[1], conn)
                     else:
                         if (name != "server_master"):
+                            printTimeStamp(name)
                             sendMessage(message.decode(), delimeter, fullMessageDelimeter, name)
                         else:
+                            printTimeStamp(name)
                             serverMessage(message.decode(), delimeter, conn)
 
                 else:
@@ -143,6 +144,19 @@ def clientthread(conn, addr):
 
             except:
                 continue
+
+def printTimeStamp(name):
+    if name != "server_master":
+        date_time = datetime.datetime.now()
+        sys.stdout.write("{} ".format(date_time))
+        sys.stdout.flush()
+
+def checkName(name, sender_conn):
+    destination_client_conn = client_directory.findClient(name)
+    if (destination_client_conn == -1):
+        sender_conn.send("failure".encode())
+    else:
+        sender_conn.send("success".encode())
 
 def serverMessage(message, delimeter, conn):
     message_part = message.split(delimeter)[0]

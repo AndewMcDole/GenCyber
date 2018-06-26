@@ -31,7 +31,7 @@ class ClientDirectory:
 
     def getNumClients(self):
         return self.numberOfClients
-        
+
     def allClientsConnected(self):
         if (self.numberOfClients == self.maxNumberOfClients):
             return True
@@ -111,7 +111,7 @@ class ClientDirectory:
         for x in range(self.numberOfClients):
             if (self.compareStrings(name, self.matrix[x][0])):
                 return self.matrix[x][1]
-        return -1
+        return int(-1)
 
     def deleteClient(self, name):
         for x in range(self.numberOfClients):

@@ -162,7 +162,7 @@ while True:
             checkForConnectionLoss(message)
 
             list_of_messages = message.decode().split(fullMessageDelimeter)
-            
+
             for message in list_of_messages[:-1]:
                 # Once we receive a message, we need to strip off the name and winnow the message
                 message_parts = message.split(delimeter)
@@ -187,7 +187,16 @@ while True:
             command = message.split()[0]
 
             if (compareStrings(command, "send")):
-                message = input("Who to write to: ")
+                validName = False
+                while not validName:
+                    message = input("Who to write to: ")
+
+                    # Check if client name is mistyped
+                    server.send(str("check_name " + message).encode())
+                    if (server.recv(1048).decode() != "success"):
+                        print ("Failed to send message: {} does not exist".format(message))
+                    else:
+                        validName = True
 
                 # Remove the \n created by readline()
                 message = message.split("\n")[0]
@@ -196,7 +205,7 @@ while True:
                 message = message + delimeter + CF.constructMessage(SECRET_KEY, delimeter)
 
                 server.send(message.encode())
-                print ("Message Sent Successfully\n")
+
 
             elif compareStrings(command, "help"):
                 displayHelpMenu()
