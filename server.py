@@ -91,9 +91,10 @@ def clientthread(conn, addr):
         message = "Welcome to the Avenger's Stone Hunt Game!\nYou are admin"
         conn.send(message.encode())
 
+    delimeter = ";@;"
     if (name != "server_master"):
         stones, location = client_directory.addClient(name, conn)
-        conn.send("{};{};{}".format(stones, location, SECRET_KEY).encode())
+        conn.send("{};;{};;{};;{}".format(stones, location, SECRET_KEY, delimeter).encode())
 
         # prints the name and address of the user that just connected
         print (name + " connected on " + addr[0])
@@ -129,9 +130,9 @@ def clientthread(conn, addr):
                         disconnectClient(name, conn)
                     else:
                         if (name != "server_master"):
-                            sendMessage(message.decode(), name)
+                            sendMessage(message.decode(), delimeter, name)
                         else:
-                            serverMessage(message.decode(), conn)
+                            serverMessage(message.decode(), delimeter, conn)
 
                 else:
                     """message may have no content if the connection
@@ -142,14 +143,14 @@ def clientthread(conn, addr):
             except:
                 continue
 
-def serverMessage(message, conn):
-    message_part = message.split(";")[0]
+def serverMessage(message, delimeter, conn):
+    message_part = message.split(delimeter)[0]
     if (message_part == "game_state"):
         messsage_to_send = client_directory.getGameState()
         conn.send(str(messsage_to_send).encode())
 
     elif (message_part == "delete"):
-        name_to_delete = message.split(";")[1]
+        name_to_delete = message.split(delimeter)[1]
         if client_directory.deleteClient(name_to_delete) == 1:
             message = "Deleted {}".format(name_to_delete)
             print ("Lost connection with {}".format(name_to_delete))
@@ -159,8 +160,8 @@ def serverMessage(message, conn):
             conn.send(message.encode())
         client_directory.getAllClients()
 
-def sendMessage(message, sender):
-    message_parts = message.split(";")
+def sendMessage(message, delimeter, sender):
+    message_parts = message.split(delimeter)
     del message_parts[-1] # remove the last element
     # Locates connection associated with name of client
     destination_client = message_parts[0]
@@ -185,9 +186,9 @@ def sendMessage(message, sender):
         sys.stdout.flush()
 
         # Remove the receiver name from the beginning and prepend on the sender name
-        message_to_send = str(sender) + ";"
+        message_to_send = str(sender) + delimeter
         for message_part in message_parts[1:]:
-            message_to_send = message_to_send + message_part + ";"
+            message_to_send = message_to_send + message_part + delimeter
 
         list_of_conns = client_directory.getAllConn()
         for conn in list_of_conns:

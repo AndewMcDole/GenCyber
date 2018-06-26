@@ -126,13 +126,16 @@ print (message.decode())
 
 # Receive stone setup and key
 message = server.recv(2048)
-message_parts = message.decode().split(";")
+message_parts = message.decode().split(";;")
+print ("Message Parts: {}".format(message_parts))
 stone_list = message_parts[0]
 print ("You have {}".format(stone_list))
 location = message_parts[1]
 print ("Location: {}".format(location))
 SECRET_KEY = int(message_parts[2])
 print ("Secret Key: {}".format(SECRET_KEY))
+delimeter = str(message_parts[3])
+print ("Delimeter: {}".format(message_parts[3]))
 
 while True:
 
@@ -161,7 +164,7 @@ while True:
             checkForConnectionLoss(message)
 
             # Once we receive a message, we need to strip off the name and winnow the message
-            message_parts = message.decode().split(";")
+            message_parts = message.decode().split(delimeter)
 
             date_time = datetime.datetime.now()
             sys.stdout.write("{} ".format(date_time))
@@ -170,9 +173,9 @@ while True:
             print (" {} <".format(message_parts[0]))
             message_to_winnow = ""
             for message_part in message_parts[1:-1]:
-                message_to_winnow = message_to_winnow + message_part + ";"
+                message_to_winnow = message_to_winnow + message_part + delimeter
 
-            CF.winnow(message_to_winnow, SECRET_KEY)
+            CF.winnow(message_to_winnow, SECRET_KEY, delimeter)
             print ()
         else:
             message = sys.stdin.readline()
@@ -189,7 +192,7 @@ while True:
                 message = message.split("\n")[0]
 
                 # Once the user types a name to send, ask for a message to write
-                message = message + ";" + CF.constructMessage(SECRET_KEY)
+                message = message + delimeter + CF.constructMessage(SECRET_KEY, delimeter)
 
                 server.send(message.encode())
                 print ("Message Sent Successfully\n")
