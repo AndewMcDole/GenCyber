@@ -184,13 +184,16 @@ class ClientDirectory:
         return str(names)
 
     def validName(self, name):
-        if name in list_of_names:
-            return "true"
-        return "false"
+        for name_ in list_of_names:
+            if compareStrings(name_, name):
+                return True
+        return False
 
     def namePicked(self, name):
-        list_of_names.remove(name)
-        names_chosen.append(name)
+        for name_ in list_of_names:
+            if compareStrings(name_, name):
+                list_of_names.remove(name_)
+                names_chosen.append(name_)
 
 """
 if __name__ == "__main__":
