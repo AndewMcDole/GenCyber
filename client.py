@@ -4,6 +4,7 @@ import socket
 import select
 import sys
 import datetime
+import os
 from termcolor import colored, cprint
 import ChaffFactory
 
@@ -28,7 +29,7 @@ def checkForConnectionLoss(message):
         sys.exit()
 
 def displayHelpMenu():
-    listOfCommands = ["Send", "Who", "Help", "Locations", "Exit"]
+    listOfCommands = ["Send", "Who", "Help", "Locations", "Exit", "Clear", "Redo"]
     print ("List of commands: {}\n".format(listOfCommands))
 
 def requestClients(socks):
@@ -59,6 +60,9 @@ def exitSequence(conn):
         sys.exit(0)
     else:
         print ("Disconnect unsuccessful")
+
+def clearScreen():
+    os.system('clear')
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
@@ -189,7 +193,11 @@ while True:
                 message = message.split("\n")[0]
 
                 # Once the user types a name to send, ask for a message to write
-                message = message + ";" + CF.constructMessage(SECRET_KEY)
+                next_part = CF.constructMessage(SECRET_KEY)
+                while next_part == 'redo':
+                    print ("\nRestarting message construction...\n")
+                    next_part = CF.constructMessage(SECRET_KEY)
+                message = message + ";" + next_part
 
                 server.send(message.encode())
                 print ("Message Sent Successfully\n")
@@ -205,5 +213,8 @@ while True:
 
             elif compareStrings(command, "exit"):
                 exitSequence(server)
+
+            elif compareStrings(command, "clear"):
+                clearScreen()
 
 server.close()

@@ -31,7 +31,7 @@ class ClientDirectory:
 
     def getNumClients(self):
         return self.numberOfClients
-        
+
     def allClientsConnected(self):
         if (self.numberOfClients == self.maxNumberOfClients):
             return True
@@ -123,6 +123,8 @@ class ClientDirectory:
                     self.matrix[y][2] = self.matrix[y + 1][2]
                     self.matrix[y][3] = self.matrix[y + 1][3]
                 self.numberOfClients -= 1
+                names_chosen.remove(name)
+                list_of_names.append(name)
                 return 1
         return -1
 

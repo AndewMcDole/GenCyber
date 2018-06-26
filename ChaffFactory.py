@@ -12,11 +12,15 @@ class ChaffFactory:
         self.phrases = []
 
     def constructMessage(self, SECRET_KEY):
+        phrase = ""
         phrase = input ("Enter your correct message: ")
         phrase = phrase + ";" + Hashing.get_hash_(phrase, str(SECRET_KEY)) + ";"
         self.phrases.append(phrase)
         for x in range (self.numberOfChaffs - 1):
             phrase = input ("Enter a fake message: ")
+            if compareStrings(phrase, 'redo'):
+                self.phrases.clear()
+                return phrase
             phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * SECRET_KEY)) + ";"
             self.phrases.append(phrase)
         random.shuffle(self.phrases)
@@ -42,6 +46,14 @@ class ChaffFactory:
                     line = line + " Hashes Do Not Match"
                     print (colored(line, "red"))
                 line = ""
+
+    def compareStrings(self, str1, str2):
+        str1 = str1.replace(" ", "")
+        str2 = str2.replace(" ", "")
+        if str1.lower() == str2.lower():
+            # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
+            return True
+        return False
 
 if __name__ == "__main__":
     cf = ChaffFactory()
