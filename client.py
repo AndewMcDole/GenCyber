@@ -4,6 +4,7 @@ import socket
 import select
 import sys
 import datetime
+import os
 
 import ChaffFactory
 
@@ -23,6 +24,9 @@ def compareStrings(str1, str2):
         # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
         return True
     return False
+
+def clearScreen():
+    os.system('clear')
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
@@ -113,7 +117,11 @@ while True:
                 message = message.split("\n")[0]
 
                 # Once the user types a name to send, ask for a message to write
-                message = message + ";" + CF.constructMessage(SECRET_KEY)
+                next_part = CF.constructMessage(SECRET_KEY)
+                while next_part == 'redo':
+                    print ("\nRestarting message construction...\n")
+                    next_part = CF.constructMessage(SECRET_KEY)
+                message = message + ";" + next_part
 
                 server.send(message.encode())
                 print ("Message Sent Successfully\n")
@@ -123,5 +131,8 @@ while True:
 
             elif compareStrings(command, "Who"):
                 requestClients(server)
+
+            elif compareStrings(command, "clear"):
+                clearScreen()
 
 server.close()
