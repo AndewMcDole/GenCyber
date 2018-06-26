@@ -43,6 +43,14 @@ class ChaffFactory:
                     print (colored(line, "red"))
                 line = ""
 
+    def compareStrings(self, str1, str2):
+        str1 = str1.replace(" ", "")
+        str2 = str2.replace(" ", "")
+        if str1.lower() == str2.lower():
+            # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
+            return True
+        return False
+
 if __name__ == "__main__":
     cf = ChaffFactory()
     # print (cf.constructMessage())

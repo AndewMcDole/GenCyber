@@ -227,6 +227,14 @@ def disconnectClient(name, conn):
     else:
         conn.send("disconnect unsuccessful".encode())
 
+def compareStrings(self, str1, str2):
+    str1 = str1.replace(" ", "")
+    str2 = str2.replace(" ", "")
+    if str1.lower() == str2.lower():
+        # print ("Comparing {} and {}".format(str1.lower(), str2.lower()))
+        return True
+    return False
+    
 """Using the below function, we broadcast the message to all
 clients who's object is not the same as the one sending
 the message """

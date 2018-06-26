@@ -31,7 +31,7 @@ class ClientDirectory:
 
     def getNumClients(self):
         return self.numberOfClients
-        
+
     def allClientsConnected(self):
         if (self.numberOfClients == self.maxNumberOfClients):
             return True
@@ -123,6 +123,8 @@ class ClientDirectory:
                     self.matrix[y][2] = self.matrix[y + 1][2]
                     self.matrix[y][3] = self.matrix[y + 1][3]
                 self.numberOfClients -= 1
+                names_chosen.remove(name)
+                list_of_names.append(name)
                 return 1
         return -1
 
@@ -182,13 +184,16 @@ class ClientDirectory:
         return str(names)
 
     def validName(self, name):
-        if name in list_of_names:
-            return "true"
-        return "false"
+        for name_ in list_of_names:
+            if compareStrings(name_, name):
+                return True
+        return False
 
     def namePicked(self, name):
-        list_of_names.remove(name)
-        names_chosen.append(name)
+        for name_ in list_of_names:
+            if compareStrings(name_, name):
+                list_of_names.remove(name_)
+                names_chosen.append(name_)
 
 """
 if __name__ == "__main__":
