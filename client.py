@@ -114,6 +114,7 @@ def receive(sock):
         CF.winnow(message_to_winnow, SECRET_KEY, delimeter)
         print ()
 
+sending = False
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
     print ("Correct usage: script, IP address, port number")
@@ -206,7 +207,7 @@ while True:
     read_sockets, write_socket, error_socket = select.select(sockets_list,[],[])
 
     for socks in read_sockets:
-        if socks == server:
+        if socks == server and sending == False:
             receive(socks)
         else:
             message = sys.stdin.readline()
@@ -217,7 +218,9 @@ while True:
             command = message.split()[0]
 
             if (compareStrings(command, "send")):
+                sending = True
                 send()
+                sending = False
 
             elif compareStrings(command, "help"):
                 displayHelpMenu()
