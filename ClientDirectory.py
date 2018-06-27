@@ -109,7 +109,7 @@ class ClientDirectory:
 
     def findClient(self, name):
         for x in range(self.numberOfClients):
-            print ( self.matrix[x][0])
+            #print ( self.matrix[x][0])
             if (self.compareStrings(name, self.matrix[x][0])):
                 return self.matrix[x][1]
         return int(-1)
@@ -163,6 +163,7 @@ class ClientDirectory:
     def getAllClients(self):
         clientList = []
         for client in range(self.numberOfClients):
+            print ( self.matrix[client][0] )
             clientList.append(self.matrix[client][0])
         return clientList
 
