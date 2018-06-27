@@ -147,6 +147,8 @@ color_choice = ""
 print (list_of_colors)
 while not valid_choice:
     color_choice = input ("Please select a color: ").lower()
+    if user_input == "none":
+        break
     if color_choice in list_of_colors:
         valid_choice = True
 
@@ -208,7 +210,7 @@ while True:
         else:
             message = sys.stdin.readline()
             if message == "\n":
-                break;
+                break
 
             #Allow the user to begin sending a messge by typing in "send"
             command = message.split()[0]
