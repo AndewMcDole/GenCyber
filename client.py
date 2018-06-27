@@ -147,7 +147,7 @@ color_choice = ""
 print (list_of_colors)
 while not valid_choice:
     color_choice = input ("Please select a color: ").lower()
-    if user_input == "none":
+    if color_choice == "none":
         break
     if color_choice in list_of_colors:
         valid_choice = True
