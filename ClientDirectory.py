@@ -62,6 +62,7 @@ class ClientDirectory:
         self.matrix = self.matrix2
 
     def selectStone(self):
+        print ("CD: selectStone")
         client_stone = []
 
         valid_choice = False
@@ -102,6 +103,7 @@ class ClientDirectory:
         return client_stone
 
     def selectLocation(self):
+        print ("CD: selectLocation")
         dice_roll = random.randint(0,10)
         location_choice = random.choice(list_of_locations)
         # print ("Dice_Roll: {}".format(dice_roll))

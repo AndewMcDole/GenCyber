@@ -95,10 +95,8 @@ def clientthread(conn, addr):
         """
         try:
             name = client_directory.getNameByIndex(int(name))
-            print ("server: getNameByIndex")
         except:
             name = client_directory.getNameByStr(name)
-            print ("server: getNameByStr")
 
 
         client_directory.namePicked(name)
