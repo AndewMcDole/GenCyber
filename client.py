@@ -174,7 +174,7 @@ while not valid_choice:
         valid_choice = True
 
 # Receive stone setup and key
-message = server.recv(2048)
+message = server.recv(4096)
 message_parts = message.decode().split(";;")
 stone_list = message_parts[0]
 print ("You have {}".format(stone_list))
