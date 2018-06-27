@@ -65,6 +65,52 @@ def exitSequence(conn):
 def clearScreen():
     os.system('clear')
 
+def send():
+    valid_name = False
+    while not valid_name:
+        message = input("Who to write to: ")
+
+        # Check if client name is mistyped
+        server.send(str("check_name " + message).encode())
+        if (server.recv(1048).decode() != "success"):
+            print ("Failed to send message: {} does not exist".format(message))
+        else:
+            valid_name = True
+
+    # Remove the \n created by readline()
+    message = message.split("\n")[0]
+
+    # Once the user types a name to send, ask for a message to write
+    next_part = CF.constructMessage(SECRET_KEY, delimeter)
+    while compareStrings(next_part, 'redo'):
+        print ("\nRestarting the message construction...\n")
+        next_part = CF.constructMessage(SECRET_KEY, delimeter)
+    message = message + delimeter + next_part
+
+    server.send(message.encode())
+
+def receive(sock):
+    message = socks.recv(2048)
+    checkForConnectionLoss(message)
+
+    list_of_messages = message.decode().split(fullMessageDelimeter)
+
+    for message in list_of_messages[:-1]:
+        # Once we receive a message, we need to strip off the name and winnow the message
+        message_parts = message.split(delimeter)
+
+        date_time = datetime.datetime.now()
+        sys.stdout.write("{} ".format(date_time))
+        sys.stdout.flush()
+
+        print (" {} <".format(message_parts[0]))
+        message_to_winnow = ""
+        for message_part in message_parts[1:-1]:
+            message_to_winnow = message_to_winnow + message_part + delimeter
+
+        CF.winnow(message_to_winnow, SECRET_KEY, delimeter)
+        print ()
+
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
     print ("Correct usage: script, IP address, port number")
@@ -158,26 +204,7 @@ while True:
 
     for socks in read_sockets:
         if socks == server:
-            message = socks.recv(2048)
-            checkForConnectionLoss(message)
-
-            list_of_messages = message.decode().split(fullMessageDelimeter)
-
-            for message in list_of_messages[:-1]:
-                # Once we receive a message, we need to strip off the name and winnow the message
-                message_parts = message.split(delimeter)
-
-                date_time = datetime.datetime.now()
-                sys.stdout.write("{} ".format(date_time))
-                sys.stdout.flush()
-
-                print (" {} <".format(message_parts[0]))
-                message_to_winnow = ""
-                for message_part in message_parts[1:-1]:
-                    message_to_winnow = message_to_winnow + message_part + delimeter
-
-                CF.winnow(message_to_winnow, SECRET_KEY, delimeter)
-                print ()
+            receive(socks)
         else:
             message = sys.stdin.readline()
             if message == "\n":
@@ -187,29 +214,7 @@ while True:
             command = message.split()[0]
 
             if (compareStrings(command, "send")):
-                valid_name = False
-                while not valid_name:
-                    message = input("Who to write to: ")
-
-                    # Check if client name is mistyped
-                    server.send(str("check_name " + message).encode())
-                    if (server.recv(1048).decode() != "success"):
-                        print ("Failed to send message: {} does not exist".format(message))
-                    else:
-                        valid_name = True
-
-                # Remove the \n created by readline()
-                message = message.split("\n")[0]
-
-                # Once the user types a name to send, ask for a message to write
-                next_part = CF.constructMessage(SECRET_KEY, delimeter)
-                while compareStrings(next_part, 'redo'):
-                    print ("\nRestarting the message construction...\n")
-                    next_part = CF.constructMessage(SECRET_KEY, delimeter)
-                message = message + delimeter + next_part
-
-                server.send(message.encode())
-
+                send()
 
             elif compareStrings(command, "help"):
                 displayHelpMenu()
