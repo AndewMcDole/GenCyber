@@ -93,31 +93,30 @@ def send():
 
 def receive(sock):
     print ("client: receive")
-    while sending == False:
-        new_message = socks.recv(2048)
-        checkForConnectionLoss(new_message)
+    new_message = socks.recv(2048)
+    checkForConnectionLoss(new_message)
 
-        new_message = new_message.decode()
+    new_message = new_message.decode()
 
-        # Once we receive a message, we need to strip off the name and winnow the message
-        message_parts = new_message.split(delimeter)
+    # Once we receive a message, we need to strip off the name and winnow the message
+    message_parts = new_message.split(delimeter)
 
-        date_time = datetime.datetime.now()
-        sys.stdout.write("{} ".format(date_time))
-        sys.stdout.flush()
+    date_time = datetime.datetime.now()
+    sys.stdout.write("{} ".format(date_time))
+    sys.stdout.flush()
 
-        print (" {} <".format(message_parts[0]))
-        message_to_winnow = ""
-        for message_part in message_parts[1:-1]:
-            message_to_winnow = message_to_winnow + message_part + delimeter
+    print (" {} <".format(message_parts[0]))
+    message_to_winnow = ""
+    for message_part in message_parts[1:-1]:
+        message_to_winnow = message_to_winnow + message_part + delimeter
 
-        list_of_messages.append(message_to_winnow)
+    list_of_messages.append(message_to_winnow)
 
-        if sending == False:
-            for message in list_of_messages:
-                CF.winnow(message, SECRET_KEY, delimeter)
-                print ()
-            list_of_messages.clear()
+    if sending == False:
+        for message in list_of_messages:
+            CF.winnow(message, SECRET_KEY, delimeter)
+            print ()
+        list_of_messages.clear()
 
 sending = True
 list_of_messages = []
@@ -213,7 +212,7 @@ while True:
     read_sockets, write_socket, error_socket = select.select(sockets_list,[],[])
 
     for socks in read_sockets:
-        if socks == server:
+        if socks == server and sending == False:
             receive(socks)
         else:
             message = sys.stdin.readline()
