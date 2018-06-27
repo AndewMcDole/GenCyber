@@ -7,6 +7,7 @@ import datetime
 import os
 from termcolor import colored, cprint
 import ChaffFactory
+import ClientDirectory as cd
 
 def printPrompt(color, effect):
     if color != "none" and effect != "none":
@@ -91,6 +92,9 @@ while valid_name == "false":
 
 name = server.recv(1024).decode()
 
+if isinstance(name, int):
+    name = cd.getName(int(name))
+
 """
 Allow the user to pick their color of choice for their character
 """
@@ -122,13 +126,6 @@ while not valid_choice:
     if user_input in list_of_effects:
         effect_choice.append(user_input)
         valid_choice = True
-
-
-"""
-# Receive the opening message
-message = server.recv(2048)
-print (message.decode())
-"""
 
 # Receive stone setup and key
 message = server.recv(2048)
@@ -193,8 +190,8 @@ while True:
             command = message.split()[0]
 
             if (compareStrings(command, "send")):
-                validName = False
-                while not validName:
+                valid_name = False
+                while not valid_name:
                     message = input("Who to write to: ")
 
                     # Check if client name is mistyped
@@ -202,7 +199,7 @@ while True:
                     if (server.recv(1048).decode() != "success"):
                         print ("Failed to send message: {} does not exist".format(message))
                     else:
-                        validName = True
+                        valid_name = True
 
                 # Remove the \n created by readline()
                 message = message.split("\n")[0]

@@ -182,29 +182,33 @@ class ClientDirectory:
             count += 1
         return str(names)
 
-    def validName(self, name):
+    def validNameByStr(self, name):
         for name_ in list_of_names:
             if self.compareStrings(name_, name):
-                return 'true'
+                return True
+        return False
 
-            if int(name) < 1 or int(name) > len(list_of_names):
-                return 'false'
-            else:
-                return 'true'
-        return 'false'
+    def validNameByNum(self, name):
+        name = int(name)
+        if name >= 1 and name < len(list_of_names):
+            return True
+        return False
 
     def namePicked(self, name):
-        if isinstance(name, int):
-            if int(name) >= 1 or int(name) < len(list_of_names):
-                index = int(name) - 1
-                name_ = list_of_names[index]
+        for name_ in list_of_names:
+            if self.compareStrings(name_, name):
                 list_of_names.remove(name_)
                 names_chosen.append(name_)
-        else:
-            for name_ in list_of_names:
-                if self.compareStrings(name_, name):
-                    list_of_names.remove(name_)
-                    names_chosen.append(name_)
+                return True
+
+        name = int(name)
+        if name >= 1 and name < len(list_of_names):
+            index = int(name) - 1
+            name_ = list_of_names[index]
+            list_of_names.remove(name_)
+            names_chosen.append(name_)
+            return True
+        return False
 
     def removeName(self, name):
         for name_ in names_chosen:
@@ -214,6 +218,13 @@ class ClientDirectory:
 
     def getName(self, index):
         return list_of_names[index - 1]
+
+    def castInt(name):
+        try:
+            name = int(name)
+            return True
+        except ValueError:
+            return False
 
 """
 if __name__ == "__main__":

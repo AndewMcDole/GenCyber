@@ -69,25 +69,29 @@ def clientthread(conn, addr):
         message = "Welcome to the Avenger's Stone Hunt Game!\nWho are you?\n" + client_directory.getRemainingNames()
         conn.send(message.encode())
         name = conn.recv(2048).decode()
-        valid = str(client_directory.validName(name))
+        if client_directory.validNameByStr(name) or client_directory.validNameByNum(name):
+            valid = "true"
+        else:
+            valid = "false"
+
         conn.send(valid.encode())
         # Wait before sending again or the client will receive the data incorrectly
         time.sleep(.2)
 
-        while client_directory.validName(name) == "false":
+        while valid == "false":
             message = "The available characters are as follows:\n" + client_directory.getRemainingNames()
             conn.send((message.encode()))
             name = conn.recv(2048).decode()
-            if client_directory.validName(name) == "false":
-                conn.send("false".encode())
-            else:
+            if client_directory.validNameByStr(name) or client_directory.validNameByNum(name):
+                valid = 'true'
                 conn.send("true".encode())
+            else:
+                conn.send("false".encode())
 
-        if int(name) >= 1 or int(name) < len(list_of_names):
+        if castInt(name):
             name = client_directory.getName(int(name))
 
         client_directory.namePicked(name)
-
         conn.send(name.encode())
 
         """Maintains a list of clients for ease of broadcasting
