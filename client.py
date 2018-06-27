@@ -93,28 +93,31 @@ def send():
 
 def receive(sock):
     print ("client: receive")
-    message = socks.recv(2048)
+    new_message = socks.recv(2048)
     checkForConnectionLoss(message)
 
-    list_of_messages = message.decode().split(fullMessageDelimeter)
+    # Once we receive a message, we need to strip off the name and winnow the message
+    message_parts = new_message.split(delimeter)
 
-    for message in list_of_messages[:-1]:
-        # Once we receive a message, we need to strip off the name and winnow the message
-        message_parts = message.split(delimeter)
+    date_time = datetime.datetime.now()
+    sys.stdout.write("{} ".format(date_time))
+    sys.stdout.flush()
 
-        date_time = datetime.datetime.now()
-        sys.stdout.write("{} ".format(date_time))
-        sys.stdout.flush()
+    print (" {} <".format(message_parts[0]))
+    message_to_winnow = ""
+    for message_part in message_parts[1:-1]:
+        message_to_winnow = message_to_winnow + message_part + delimeter
 
-        print (" {} <".format(message_parts[0]))
-        message_to_winnow = ""
-        for message_part in message_parts[1:-1]:
-            message_to_winnow = message_to_winnow + message_part + delimeter
+    list_of_messages.append(message_to_winnow)
 
-        CF.winnow(message_to_winnow, SECRET_KEY, delimeter)
-        print ()
+    if sending == False:
+        for message in list_of_messages:
+            CF.winnow(message, SECRET_KEY, delimeter)
+            print ()
+        list_of_messages.clear()
 
 sending = False
+list_of_messages = []
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
     print ("Correct usage: script, IP address, port number")
@@ -207,7 +210,7 @@ while True:
     read_sockets, write_socket, error_socket = select.select(sockets_list,[],[])
 
     for socks in read_sockets:
-        if socks == server and sending == False:
+        if socks == server:
             receive(socks)
         else:
             message = sys.stdin.readline()
