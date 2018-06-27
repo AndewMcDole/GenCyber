@@ -118,7 +118,7 @@ def receive(sock):
             print ()
         list_of_messages.clear()
 
-sending = True
+sending = False
 list_of_messages = []
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3:
