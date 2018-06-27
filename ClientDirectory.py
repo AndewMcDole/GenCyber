@@ -109,6 +109,7 @@ class ClientDirectory:
 
     def findClient(self, name):
         for x in range(self.numberOfClients):
+            print ( self.matrix[x][0])
             if (self.compareStrings(name, self.matrix[x][0])):
                 return self.matrix[x][1]
         return int(-1)
