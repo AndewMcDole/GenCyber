@@ -34,6 +34,7 @@ def displayHelpMenu():
     print ("List of commands: {}\n".format(listOfCommands))
 
 def requestClients(socks):
+    print ("client: requestClients")
     socks.send("clients_list".encode())
     message = socks.recv(2048)
     checkForConnectionLoss(message)
@@ -66,6 +67,7 @@ def clearScreen():
     os.system('clear')
 
 def send():
+    print ("client: send")
     valid_name = False
     while not valid_name:
         message = input("Who to write to: ")
@@ -90,6 +92,7 @@ def send():
     server.send(message.encode())
 
 def receive(sock):
+    print ("client: receive")
     message = socks.recv(2048)
     checkForConnectionLoss(message)
 

@@ -39,6 +39,7 @@ class ClientDirectory:
             return False
 
     def addClient(self, name, conn):
+        print ("CD: addClient")
         self.matrix[self.numberOfClients][0] = name
         self.matrix[self.numberOfClients][1] = conn
         # print ("Added " + name + " on ip_address: " + str(ip_address))
@@ -108,6 +109,7 @@ class ClientDirectory:
         return location_choice
 
     def findClient(self, name):
+        print ("CD: findClient")
         for x in range(self.numberOfClients):
             #print ( self.matrix[x][0])
             if (self.compareStrings(name, self.matrix[x][0])):
@@ -115,6 +117,7 @@ class ClientDirectory:
         return int(-1)
 
     def deleteClient(self, name):
+        print ("CD: deleteClient")
         for x in range(self.numberOfClients):
             #if (name == self.matrix[x][0]):
             if (self.compareStrings(name, self.matrix[x][0])):
@@ -129,6 +132,7 @@ class ClientDirectory:
         return -1
 
     def deleteConn(self, conn):
+        print ("CD: deleteConn")
         for x in range(self.numberOfClients):
             #if (name == self.matrix[x][0]):
             if conn == self.matrix[x][1]:
@@ -161,6 +165,7 @@ class ClientDirectory:
         return False
 
     def getAllClients(self):
+        print ("CD: getAllClients")
         clientList = []
         for client in range(self.numberOfClients):
             print ( self.matrix[client][0] )
@@ -177,6 +182,7 @@ class ClientDirectory:
         return list_of_locations
 
     def getRemainingNames(self):
+        print ("CD: getRemainingNames")
         names = ""
         count = 1
         for name in list_of_names:
@@ -185,18 +191,21 @@ class ClientDirectory:
         return str(names)
 
     def validNameByStr(self, name):
+        print ("CD: validByStr")
         for name_ in list_of_names:
             if self.compareStrings(name_, name):
                 return True
         return False
 
     def validNameByNum(self, name):
+        print ("CD: validByNum")
         name = int(name)
         if name >= 1 and name <= len(list_of_names):
             return True
         return False
 
     def namePicked(self, name):
+        print ("CD: namePicked")
         for name_ in list_of_names:
             if self.compareStrings(name_, name):
                 list_of_names.remove(name_)
@@ -213,21 +222,25 @@ class ClientDirectory:
         return False
 
     def removeName(self, name):
+        print ("CD: removeName")
         for name_ in names_chosen:
             if self.compareStrings(name_, name):
                 list_of_names.append(name_)
                 names_chosen.remove(name_)
 
     def getNameByIndex(self, index):
+        print ("CD: getNameByIndex")
         return list_of_names[index - 1]
 
     def getNameByStr(self, name):
+        print ("CD: getNameByStr")
         for name_ in list_of_names:
             if self.compareStrings(name_, name):
                 return name_
         return "Name not found"
 
     def castInt(self, name):
+        print ("CD: castInt")
         try:
             name = int(name)
             return True
