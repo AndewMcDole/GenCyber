@@ -164,6 +164,8 @@ print (list_of_effects)
 effect_choice = []
 while not valid_choice:
     user_input = input ("Please select an effect: ").lower()
+    if user_input == "none":
+        break
     if user_input in list_of_effects:
         effect_choice.append(user_input)
         valid_choice = True
