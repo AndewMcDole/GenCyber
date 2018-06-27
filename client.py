@@ -147,8 +147,6 @@ color_choice = ""
 print (list_of_colors)
 while not valid_choice:
     color_choice = input ("Please select a color: ").lower()
-    if color_choice == "none":
-        break
     if color_choice in list_of_colors:
         valid_choice = True
 
@@ -166,8 +164,6 @@ print (list_of_effects)
 effect_choice = []
 while not valid_choice:
     user_input = input ("Please select an effect: ").lower()
-    if user_input == "none":
-        break
     if user_input in list_of_effects:
         effect_choice.append(user_input)
         valid_choice = True
