@@ -7,7 +7,7 @@ import datetime
 import os
 from termcolor import colored, cprint
 import ChaffFactory
-import ClientDirectory as cd
+import ClientDirectory
 
 def printPrompt(color, effect):
     if color != "none" and effect != "none":
@@ -91,9 +91,6 @@ while valid_name == "false":
     valid_name = server.recv(1024).decode()
 
 name = server.recv(1024).decode()
-
-if isinstance(name, int):
-    name = cd.getName(int(name))
 
 """
 Allow the user to pick their color of choice for their character

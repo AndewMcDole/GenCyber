@@ -190,7 +190,7 @@ class ClientDirectory:
 
     def validNameByNum(self, name):
         name = int(name)
-        if name >= 1 and name < len(list_of_names):
+        if name >= 1 and name <= len(list_of_names):
             return True
         return False
 
@@ -202,7 +202,7 @@ class ClientDirectory:
                 return True
 
         name = int(name)
-        if name >= 1 and name < len(list_of_names):
+        if name >= 1 and name <= len(list_of_names):
             index = int(name) - 1
             name_ = list_of_names[index]
             list_of_names.remove(name_)
@@ -216,10 +216,16 @@ class ClientDirectory:
                 list_of_names.append(name_)
                 names_chosen.remove(name_)
 
-    def getName(self, index):
+    def getNameByIndex(self, index):
         return list_of_names[index - 1]
 
-    def castInt(name):
+    def getNameByStr(self, name):
+        for name_ in list_of_names:
+            if self.compareStrings(name_, name):
+                return name_
+        return "Name not found"
+
+    def castInt(self, name):
         try:
             name = int(name)
             return True

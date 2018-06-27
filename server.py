@@ -88,8 +88,14 @@ def clientthread(conn, addr):
             else:
                 conn.send("false".encode())
 
-        if castInt(name):
-            name = client_directory.getName(int(name))
+        """
+        Here we need to convert the name that was input into the uniform listen
+        provided by the client directory
+        """
+        try:
+            name = client_directory.getNameByIndex(int(name))
+        except:
+            name = client_directory.getNameByStr(name)
 
         client_directory.namePicked(name)
         conn.send(name.encode())
