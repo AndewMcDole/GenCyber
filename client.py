@@ -94,7 +94,7 @@ def send():
 def receive(sock):
     print ("client: receive")
     new_message = socks.recv(2048)
-    checkForConnectionLoss(message)
+    checkForConnectionLoss(new_message)
 
     # Once we receive a message, we need to strip off the name and winnow the message
     message_parts = new_message.split(delimeter)
