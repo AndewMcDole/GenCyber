@@ -201,10 +201,12 @@ class ClientDirectory:
 
     def validNameByNum(self, name):
         print ("CD: validByNum")
-        name = int(name)
-        if name >= 1 and name <= len(list_of_names):
-            return True
-        return False
+        try:
+            name = int(name)
+            if name >= 1 and name <= len(list_of_names):
+                return True
+        except ValueError:
+            return False
 
     def namePicked(self, name):
         print ("CD: namePicked")

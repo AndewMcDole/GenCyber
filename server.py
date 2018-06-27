@@ -93,6 +93,7 @@ def clientthread(conn, addr):
         Here we need to convert the name that was input into the uniform listen
         provided by the client directory
         """
+
         try:
             name = client_directory.getNameByIndex(int(name))
         except:
