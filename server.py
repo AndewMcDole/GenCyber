@@ -178,6 +178,7 @@ def checkName(name, sender_conn):
     else:
         sender_conn.send("success".encode())
         if destination_client_conn.recv(1024).decode() == 'false':
+            print (" it was false")
             sender_conn.send("success".encode())
 
 def serverMessage(message, delimeter, conn):
