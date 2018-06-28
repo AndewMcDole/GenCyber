@@ -114,7 +114,7 @@ def receive(sock):
 
     if sending == False:
         #messages = message.split('+++')
-        for mess in messages:
+        for mess in list_of_messages:
             CF.winnow(mess, SECRET_KEY, delimeter)
             print ()
         list_of_messages.clear()
