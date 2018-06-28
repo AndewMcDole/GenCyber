@@ -97,6 +97,7 @@ def receive(sock):
 
     if new_message.decode() == 'success':
         server.send('false'.encode())
+        time.sleep(.5)
         new_message = socks.recv(2048)
     server.send('true'.encode())
     checkForConnectionLoss(new_message)
