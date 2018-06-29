@@ -57,7 +57,7 @@ def generateSecretKey(key_length):
 SECRET_KEY = generateSecretKey(12)
 
 def clientthread(conn, addr):
-    print ("server: clientThread")
+    #print ("server: clientThread")
     name = conn.recv(1024).decode()
     """
     Here we send the opening message to the client and determine who the User
@@ -110,7 +110,7 @@ def clientthread(conn, addr):
         conn.send(message.encode())
 
     if (name != "server_master"):
-        print ("server: line 114")
+        #print ("server: line 114")
         stones, location = client_directory.addClient(name, conn)
         delimeter = "@@@"
         fullMessageDelimeter = "+++"
@@ -171,18 +171,15 @@ def printTimeStamp(name):
         sys.stdout.flush()
 
 def checkName(name, sender_conn):
-    print ("server: checkName")
+    #print ("server: checkName")
     destination_client_conn = client_directory.findClient(name)
     if (destination_client_conn == -1):
         sender_conn.send("failure".encode())
     else:
         sender_conn.send("success".encode())
-        if destination_client_conn.recv(1024).decode() == 'false':
-            print (" it was false")
-            sender_conn.send("success".encode())
 
 def serverMessage(message, delimeter, conn):
-    print ("server: serverMessage")
+    #print ("server: serverMessage")
     message_part = message.split(delimeter)[0]
     if (message_part == "game_state"):
         messsage_to_send = client_directory.getGameState()
@@ -200,7 +197,7 @@ def serverMessage(message, delimeter, conn):
         client_directory.getAllClients()
 
 def sendMessage(message, delimeter, fullMessageDelimeter, sender):
-    print ("server: sendMessage")
+    #print ("server: sendMessage")
     message_parts = message.split(delimeter)
     del message_parts[-1] # remove the last element
     # Locates connection associated with name of client
@@ -244,7 +241,7 @@ def sendMessage(message, delimeter, fullMessageDelimeter, sender):
                     print ("Lost connection with {}".format(conn))
 
 def sendClientList(name, conn):
-    print ("server: sendClientList")
+    #print ("server: sendClientList")
     if name != "server_master":
         print ("Client list requested by {}".format(name))
     else:
@@ -261,7 +258,7 @@ def sendLocationsList(name, conn):
     conn.send(message.encode())
 
 def disconnectClient(name, conn):
-    print ("server: disconnectClient")
+    #print ("server: disconnectClient")
     print (name + " attempting to disconnect")
     if client_directory.deleteClient(name) == 1:
         conn.send("disconnect success".encode())
