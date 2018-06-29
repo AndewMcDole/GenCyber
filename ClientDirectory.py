@@ -39,7 +39,7 @@ class ClientDirectory:
             return False
 
     def addClient(self, name, conn):
-        ~#print ("CD: addClient")
+        #print ("CD: addClient")
         self.matrix[self.numberOfClients][0] = name
         self.matrix[self.numberOfClients][1] = conn
         # print ("Added " + name + " on ip_address: " + str(ip_address))
