@@ -32,6 +32,15 @@ Port = int(sys.argv[2])
 
 # tales second argument from command prompt as number of clients
 Number_Of_Clients = int(sys.argv[3])
+
+"""
+#denotes whether the game is turn based or free for all
+turn_based = false
+turn = str(sys.arg[4])
+if compareStrings(turn, 'turn') or compareStrings(turn, 'yes') or compareStrings(turn, 'y'):
+    turn_based = True
+"""
+
 """
 binds the server to an entered IP address and at the
 specified port number.

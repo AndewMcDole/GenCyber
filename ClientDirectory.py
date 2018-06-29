@@ -251,6 +251,15 @@ class ClientDirectory:
         except ValueError:
             return False
 
+    def nextTurn(self):
+        name = names_chosen.remove(names_chosen[0])
+        names_chosen.append(name)
+
+    def checkTurn(self, name):
+        if compareStrings(name, names_chosen[0]):
+            return True
+        return False
+
 """
 if __name__ == "__main__":
     cd = ClientDirectory(4)
