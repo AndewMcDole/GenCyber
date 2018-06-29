@@ -93,7 +93,7 @@ def send():
 
 def receive(sock):
     #print ("client: receive")
-    new_message = socks.recv(2048)\
+    new_message = socks.recv(2048)
     checkForConnectionLoss(new_message)
     new_message = new_message.decode()
 
