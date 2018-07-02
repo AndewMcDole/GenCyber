@@ -111,13 +111,22 @@ class StoneHuntGame:
             self.clientList(conn)
         elif command == "help":
             self.commandList(conn)
+        elif command == "location_list":
+            self.locationList(conn)
+        elif command == "client_setup":
+            self.sendClientSetup(conn)
+        elif command == "send":
+            pass
 
     """
     Commands
     """
 
+    def locationList(self, conn):
+        conn.send(pickle.dumps(self.locationsList))
+
     def commandList(self, conn):
-        listOfCommands = ["help","who","setup","send","exit"]
+        listOfCommands = ["help","who","setup","locations","send","exit"]
         conn.send(pickle.dumps(listOfCommands))
 
     def clientList(self, conn):
@@ -153,6 +162,10 @@ class StoneHuntGame:
         while not validName:
             conn.send(pickle.dumps(self.valid_hero_names))
             name = conn.recv(1024).decode()
+
+            # if the client sends an empty message, it is likely they disconnected
+            if not name:
+                return False
 
             if name not in self.used_hero_names:
                 self.valid_hero_names.remove(name)

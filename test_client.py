@@ -86,10 +86,42 @@ def mainGameLoop(server, name, nameColor, locationColor):
 
                 command = message.split()[0]
 
-                if (command.lower() == "help"):
+                if (command.lower() == "help" or command == "?"):
                     getListOfCommands(server)
                 elif (command.lower() == "who"):
                     getClientList(server)
+                elif (command.lower() == "locations"):
+                    getLocationList(server)
+                elif (command.lower() == "setup"):
+                    getClientSetup(server)
+                elif (command.lower() == "send"):
+                    sendMessage(server)
+                elif (command.lower() == "exit"):
+                    exitSequence(server)
+
+def exitSequence(server):
+    print("Exiting...")
+    exit(0)
+
+def sendMessage(server):
+    pass
+
+def getClientSetup(server):
+    server.send("client_setup".encode())
+    setup = server.recv(2048).decode().split(";")
+    stones = setup[0]
+    print("Stone(s): " + stones)
+    location = setup[1]
+    print("Location: " + location)
+    if len(setup) > 3:
+        print("You are the Gatherer!")
+    print()
+
+
+def getLocationList(server):
+    server.send("location_list".encode())
+    print(pickle.loads(server.recv(2048)))
+    print()
 
 def getListOfCommands(server):
     server.send("help".encode())
