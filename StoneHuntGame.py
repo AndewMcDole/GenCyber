@@ -1,3 +1,4 @@
+import datetime
 import os
 import pickle # used for serializing lists allowing them to be sent over sockets
 import random
@@ -105,12 +106,29 @@ class StoneHuntGame:
         self.gameHasStarted = False
 
     def process(self, conn, message):
-        pass
+        command = message.split(";")[0]
+        if command == "client_list":
+            self.clientList(conn)
+        elif command == "help":
+            self.commandList(conn)
 
     """
     Commands
     """
 
+    def commandList(self, conn):
+        listOfCommands = ["help","who","setup","send","exit"]
+        conn.send(pickle.dumps(listOfCommands))
+
+    def clientList(self, conn):
+        client = self.findClient(conn)
+        listOfClients = []
+        for client in self.listOfClients:
+            listOfClients.append(str(client))
+        conn.send(pickle.dumps(listOfClients))
+        print("{} Client list requested by {}".format(datetime.datetime.now(), str(client)))
+
+    # Should only be given to the admin
     def sendGameState(self, conn):
         listOfClients = []
         for client in self.listOfClients:
@@ -205,13 +223,14 @@ class StoneHuntGame:
 
     def sendClientSetup(self, conn):
         client = self.findClient(conn)
-        stones = client.getStones()
-        location = client.getLocation()
-        isGatherer = client.checkGatherer()
-        setup = str(str(stones)+";"+location)
-        if isGatherer:
-            setup = setup + ";"
-        conn.send(setup.encode())
+        if client != -1:
+            stones = client.getStones()
+            location = client.getLocation()
+            isGatherer = client.checkGatherer()
+            setup = str(str(stones)+";"+location)
+            if isGatherer:
+                setup = setup + ";"
+            conn.send(setup.encode())
 
     def initializeGame(self):
         print("All players connected, initializing game state...")

@@ -37,7 +37,12 @@ def clientthread(conn, addr, game):
     while validClient:
         try:
             message = conn.recv(2048).decode()
-            game.process(conn, message)
+            if message:
+                game.process(conn, message)
+            else:
+                """message may have no content if the connection
+                is broken, in this case we remove the connection"""
+                pass
         except:
             continue
 
