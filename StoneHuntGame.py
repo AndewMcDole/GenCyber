@@ -1,0 +1,258 @@
+import os
+import pickle # used for serializing lists allowing them to be sent over sockets
+import random
+
+"""
+Client Object
+"""
+
+class Client():
+
+    def __init__(self, connection, sessionKey, name):
+        self.connection = connection
+        self.sessionKey = sessionKey
+        self.name = name
+        self.stones = []
+        self.location = None
+        self.isGatherer = False
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return str(self)
+
+    def getSetup(self):
+        return self.name, self.stones, self.location, self.sessionKey, self.isGatherer
+
+    def getConn(self):
+        return self.connection
+
+    def getName(self):
+        return self.name
+
+    def getStones(self):
+        return self.stones
+
+    def addStone(self, stone):
+        self.stones.append(stone)
+
+    def getLocation(self):
+        return self.location
+
+    def setLocation(self, location):
+        self.location = location
+
+    def checkGatherer(self):
+        return self.isGatherer
+
+    def setGatherer(self):
+        self.isGatherer = True
+
+    def getSessionKey(self):
+        return self.sessionKey
+
+    def reconnectClient(self, conn):
+        self.conn = conn
+        return self.name
+
+
+class Admin():
+
+    def __init__(self, connection):
+        self.connection = connection
+
+    def __str__(self):
+        return "admin"
+
+"""
+Stone Hunt Game
+"""
+
+class StoneHuntGame:
+
+    def __init__(self):
+        self.listOfClients = []
+        self.listOfAdmins = []
+        self.maxNumClients = 1
+
+        # store list of possible character names from text file
+        currDir = os.getcwd()
+        characterFilepath = os.path.join(currDir, "CharacterList.txt")
+        self.characterList = []
+        characterFile = open(characterFilepath, "r")
+        for line in characterFile:
+            self.characterList.append(line.strip("\n"))
+
+        # Names are moved from valid to used so clients cant choose the same name
+        self.valid_hero_names = self.characterList.copy()
+        self.used_hero_names = []
+
+        # store list of possible locations from text file
+        locationsFilepath = os.path.join(currDir, "Locations.txt")
+        self.locationsList = []
+        locationFile = open(locationsFilepath, "r")
+        for line in locationFile:
+            self.locationsList.append(line.strip("\n"))
+
+        self.valid_locations = self.locationsList.copy()
+        self.used_locations = []
+
+        # 1 session key per hero connected
+        self.used_session_keys = []
+
+        # switches to True when the gmae has started
+        self.gameHasStarted = False
+
+    def process(self, conn, message):
+        pass
+
+    """
+    Commands
+    """
+
+    def sendGameState(self, conn):
+        listOfClients = []
+        for client in self.listOfClients:
+            name, stones, location, key, isGatherer = client.getSetup()
+            setup = str(name + " " + str(stones) + " " + location + " " + str(isGatherer) + " " + key)
+            listOfClients.append(setup)
+        conn.send(pickle.dumps(listOfClients))
+        return False
+
+    """
+    Connections and game setup
+    """
+
+    def addClient(self, conn):
+        if len(self.listOfClients) >= self.maxNumClients:
+            conn.send("full".encode())
+            return False
+        else:
+            conn.send("available".encode())
+
+        validName = False
+        while not validName:
+            conn.send(pickle.dumps(self.valid_hero_names))
+            name = conn.recv(1024).decode()
+
+            if name not in self.used_hero_names:
+                self.valid_hero_names.remove(name)
+                self.used_hero_names.append(name)
+                validName = True
+                conn.send("True".encode())
+            else:
+                conn.send("False".encode())
+
+        sessionKey = self.generateSessionKey(4)
+        conn.send(sessionKey.encode())
+
+        # create a new client object with this information
+        client = Client(conn, sessionKey, name)
+        self.listOfClients.append(client)
+
+        # check to see if enough clients have connected to start the game
+        if len(self.listOfClients) >= self.maxNumClients:
+            self.initializeGame()
+
+        return True
+
+    def reconnect(self, conn):
+        # The message does no matter, we are telling the client the server is ready to receive
+        conn.send("Ready to receive".encode())
+        # receive the session key
+        sk = conn.recv(1024).decode()
+
+        # check all of the clients to see if they have a matching key
+        for client in self.listOfClients:
+            if client.getSessionKey() == sk:
+                conn.send("valid".encode())
+                # overwrite connection and return name to client
+                name = client.reconnectClient(conn)
+                conn.send(name.encode())
+                return True
+
+        conn.send("invalid".encode())
+        return False
+
+    def generateSessionKey(self, keyLength):
+        # list of possible key characters
+        list_of_characters = ["9","8","7","6","5","4","3","2","1","0"]
+        validKey = False
+        while not validKey:
+            key = ""
+            for x in range(keyLength):
+                key = key + random.choice(list_of_characters)
+            if key not in self.used_session_keys:
+                validKey = True
+                self.used_session_keys.append(key)
+
+        return str(key)
+
+    def hasGameStarted(self):
+        return self.gameHasStarted
+
+    def findClient(self, conn=None, name=None):
+        if conn != None:
+            for client in self.listOfClients:
+                if client.getConn() == conn:
+                    return client
+        if name != None:
+            for client in self.listOfClients:
+                if client.getName() == name:
+                    return client
+        return -1
+
+    def sendClientSetup(self, conn):
+        client = self.findClient(conn)
+        stones = client.getStones()
+        location = client.getLocation()
+        isGatherer = client.checkGatherer()
+        setup = str(str(stones)+";"+location)
+        if isGatherer:
+            setup = setup + ";"
+        conn.send(setup.encode())
+
+    def initializeGame(self):
+        print("All players connected, initializing game state...")
+        listOfStones = ["Space Stone", "Reality Stone", "Power Stone", "Mind Stone", "Time Stone", "Soul Stone"]
+
+        # everyone will get a location
+        for client in self.listOfClients:
+            location = random.choice(self.valid_locations)
+            client.setLocation(location)
+            self.valid_locations.remove(location)
+            self.used_locations.append(location)
+
+        # 1,2,3, and 6 players are special where the stones can be distributed evenely
+        if len(self.listOfClients) <= 3 or len(self.listOfClients) == 6:
+            while len(listOfStones) > 0:
+                for client in self.listOfClients:
+                    stone = random.choice(listOfStones)
+                    listOfStones.remove(stone)
+                    client.addStone(stone)
+        # 4 or 5 clients, everyone will get at least 1
+        elif len(self.listOfClients) == 4 or len(self.listOfClients) == 5:
+            for client in self.listOfClients:
+                stone = random.choice(listOfStones)
+                listOfStones.remove(stone)
+                client.addStone(stone)
+            while len(listOfStones) > 0:
+                client = random.choice(self.listOfClients)
+                stone = random.choice(listOfStones)
+                listOfStones.remove(stone)
+                client.addStone(stone)
+        # 7 or more players, just random distribution
+        else:
+            while len(listOfStones) > 0:
+                client = random.choice(self.listOfClients)
+                stone = random.choice(listOfStones)
+                listOfStones.remove(stone)
+                client.addStone(stone)
+
+        # choose the gatherer
+        client = random.choice(self.listOfClients)
+        client.setGatherer()
+
+        print("Game state set, begin!")
+        self.gameHasStarted = True
