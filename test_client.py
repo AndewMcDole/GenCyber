@@ -1,14 +1,19 @@
 import enum
 import os
 import pickle # used for serializing lists allowing them to be sent over sockets
+import random
 import select
 import socket
 import sys
 from termcolor import colored
+import time
 
-class MessageType(enum.Enum):
+import Hashing
+
+class MessageCode(enum.Enum):
     HIGH_PRIORITY="HIGH"
     LOW_PRIORITY="LOW"
+    FULL_STOP="FULL_STOP"
 
 def main(argv):
     if len(sys.argv) != 3:
@@ -35,20 +40,20 @@ def displayMainMenu(argv):
         print("Connecting to server...")
         server = setupNetwork(argv[1], int(argv[2]))
         print("Setting up client...")
-        name, nameColor, locationColor = setupClient(server)
-        mainGameLoop(server, name, nameColor, locationColor)
+        name, nameColor, locationColor, location = setupClient(server)
+        mainGameLoop(server, name, nameColor, locationColor, location)
 
     elif userChoice == "2":
         print("Reconnecting to server...")
         server = setupNetwork(argv[1], int(argv[2]))
         print("Sending session key...")
-        name, nameColor, locationColor = reconnect(server)
-        mainGameLoop(server, name, nameColor, locationColor)
+        name, nameColor, locationColor, location = reconnect(server)
+        mainGameLoop(server, name, nameColor, locationColor, location)
 
     else:
         print("Exiting...")
 
-def mainGameLoop(server, name, nameColor, locationColor):
+def mainGameLoop(server, name, nameColor, locationColor, location):
     """
     This list will hold messsages until the
     user is ready
@@ -60,7 +65,7 @@ def mainGameLoop(server, name, nameColor, locationColor):
         # maintains a list of possible input streams
         sockets_list = [sys.stdin, server]
 
-        sys.stdout.write("{}@{}$ ".format(colored(name, nameColor), colored("location", locationColor)))
+        sys.stdout.write("{}@{}$ ".format(colored(name, nameColor), colored(location, locationColor)))
         sys.stdout.flush()
 
         """ There are two possible input situations. Either the
@@ -73,12 +78,13 @@ def mainGameLoop(server, name, nameColor, locationColor):
         condition will evaluate as true"""
         read_sockets, write_socket, error_socket = select.select(sockets_list,[],[])
 
-        # check for notifications
-        displayNotifications(lowPriorityMessageQueue)
-
         for socks in read_sockets:
             if socks == server:
-                message = receiveMessage(server, lowPriorityMessageQueue, MessageType.LOW_PRIORITY)
+                message = receiveMessage(server, lowPriorityMessageQueue, MessageCode.LOW_PRIORITY)
+                lowPriorityMessageQueue.append(message)
+                print("Message Received...")
+                # check for notifications
+                displayNotifications(lowPriorityMessageQueue)
             else:
                 message = sys.stdin.readline()
                 if message == "\n":
@@ -98,13 +104,132 @@ def mainGameLoop(server, name, nameColor, locationColor):
                     sendMessage(server)
                 elif (command.lower() == "exit"):
                     exitSequence(server)
+                elif (command.lower() == "clear"):
+                    os.system("clear")
+                elif (command.lower() == "winnow"):
+                    winnowAllMessages(lowPriorityMessageQueue, 123)
+                else:
+                    print("Unknown command")
+
+def winnowAllMessages(LPQ, SECRET_KEY):
+    if len(LPQ) == 0:
+        print("No messages to winnow yet")
+        return
+
+    # animation
+    for i in range(100):
+        print("\rWinnowing messages...[{}%]".format(i), end="")
+        time.sleep(0.1)
+    print("\rWinnowing messages...[100%]")
+
+    for message in LPQ:
+        winnow(message, SECRET_KEY)
+
+def winnow(message, SECRET_KEY):
+    # strip off the name and the message code
+    messageParts = message.split(";")
+    print("From: {}".format(messageParts[1]))
+
+    line = ""
+    for x in range(len(messageParts))[2:]:
+        if x % 2 == 0:
+            line += messageParts[x]
+            line += " "
+        else:
+            line += messageParts[x]
+            hash_result = Hashing.check_hash(messageParts[x - 1], messageParts[x], str(SECRET_KEY))
+            if hash_result:
+                line = line + " Hashes Match"
+                print (colored(line, "green"))
+            else:
+                line = line + " Hashes Do Not Match"
+                print (colored(line, "red"))
+            line = ""
+    print()
+
+def receiveMessage(server, lowPriorityMessageQueue, targetMessageType):
+    messageHasBeenReceived = False
+    while not messageHasBeenReceived:
+        # receive possibly multiple messages
+        bulkMessage = server.recv(4096).decode()
+
+        # split the messages up into individual messages
+        messages = bulkMessage.split("FULL_STOP")
+
+        for message in messages[:-1]:
+            messagePieces = message.split(";")
+            messageType = message.split(";")[0]
+            messageType = MessageCode(messageType)
+
+            # piece the message together without the message type in front
+            message = ";".join(messagePieces)
+
+            if messageType == targetMessageType:
+                targetMessage = message
+                messageHasBeenReceived = True
+            else:
+                lowPriorityMessageQueue.append(message)
+
+    return targetMessage
 
 def exitSequence(server):
     print("Exiting...")
     exit(0)
 
 def sendMessage(server):
-    pass
+    server.send("send".encode())
+
+    # we need to get the most recent list of connections
+    listOfClients = pickle.loads(server.recv(2048))
+    print(listOfClients)
+    # lowercase everything - Look up python list comprehension for syntax below
+    # lowerlistOfClients = [i.lower() for i in listOfClients]
+
+    # prompt the user for who to send a message to
+    validName = False
+    while not validName:
+        userChoice = input("Who to send to? ").lower()
+        if userChoice == 'cancel':
+            print()
+            return
+        for client in listOfClients:
+            if client.lower() == userChoice:
+                targetClient = client
+                validName = True
+
+    # create the message and the chaffs
+    message = createMessage(targetClient, 123)
+    server.send(message.encode())
+    print()
+
+def createMessage(targetClient, SECRET_KEY):
+    numberOfChaffs = 3
+    validMessage = False
+    while not validMessage:
+        phrases = []
+        phrase = input ("Enter your correct message: ")
+        if phrase.lower() == 'cancel':
+            break
+
+        phrase = phrase + ";" + Hashing.get_hash_(phrase, str(SECRET_KEY)) + ";"
+        phrases.append(phrase)
+        for x in range (numberOfChaffs - 1):
+            phrase = input ("Enter a fake message: ")
+            if phrase.lower() == 'cancel' or phrase.lower() == 'redo':
+                break
+            phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * SECRET_KEY)) + ";"
+            phrases.append(phrase)
+
+        if phrase.lower() == 'cancel':
+            break
+        elif phrase.lower() == 'redo':
+            continue
+
+        random.shuffle(phrases)
+        validMessage = True
+
+    fullMessage = "LOW;" + targetClient + ";" + ''.join(phrases) + "FULL_STOP"
+    return fullMessage
 
 def getClientSetup(server):
     server.send("client_setup".encode())
@@ -137,18 +262,7 @@ def displayNotifications(lowPriorityMessageQueue):
     numLowPriority = len(lowPriorityMessageQueue)
     if numLowPriority > 0:
         print("You have {} messages to winnow! Type 'winnow' to winnow remaining messages!".format(numLowPriority))
-
-
-def receiveMessage(server, lowPriorityMessageQueue, targetMesssageType):
-    messageHasBeenReceived = False
-    while not messageHasBeenReceived:
-        message = server.recv(2048).decode()
-        messageType = message.split(";")[0]
-        messageType = MessageType(messageType)
-        if messageType == targetMessageType:
-            return message
-        else:
-            lowPriorityMessageQueue.append(message)
+        print()
 
 def setupClient(server):
     # send opening message
@@ -195,6 +309,7 @@ def setupClient(server):
 
     print("Waiting for game to start...")
     setup = server.recv(2048).decode().split(";")
+    print()
     stones = setup[0]
     print("Stone(s): " + stones)
     location = setup[1]
@@ -202,8 +317,7 @@ def setupClient(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-
-    return name, nameColor, locationColor
+    return name, nameColor, locationColor, location
 
 def reconnect(server):
     server.send("reconnect".encode())
@@ -225,7 +339,17 @@ def reconnect(server):
     name = server.recv(1024).decode()
     nameColor, locationColor = customizePrompt()
 
-    return name, nameColor, locationColor
+    server.send("setup".encode())
+    setup = server.recv(2048).decode().split(";")
+    print()
+    stones = setup[0]
+    print("Stone(s): " + stones)
+    location = setup[1]
+    print("Location: " + location)
+    if len(setup) > 3:
+        print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
+
+    return name, nameColor, locationColor, location
 
 def customizePrompt():
     print("\nname@location $   <---- Default Prompt")

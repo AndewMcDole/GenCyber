@@ -1,4 +1,5 @@
 import datetime
+from termcolor import colored
 import os
 import pickle # used for serializing lists allowing them to be sent over sockets
 import random
@@ -54,7 +55,7 @@ class Client():
         return self.sessionKey
 
     def reconnectClient(self, conn):
-        self.conn = conn
+        self.connection = conn
         return self.name
 
 
@@ -75,7 +76,7 @@ class StoneHuntGame:
     def __init__(self):
         self.listOfClients = []
         self.listOfAdmins = []
-        self.maxNumClients = 1
+        self.maxNumClients = 2
 
         # store list of possible character names from text file
         currDir = os.getcwd()
@@ -116,17 +117,48 @@ class StoneHuntGame:
         elif command == "client_setup":
             self.sendClientSetup(conn)
         elif command == "send":
-            pass
+            self.transmitMessage(conn)
 
     """
     Commands
     """
 
+    def transmitMessage(self, conn):
+        # transmit client list
+        listOfClients = []
+        for client in self.listOfClients:
+            listOfClients.append(str(client))
+        conn.send(pickle.dumps(listOfClients))
+
+        message = conn.recv(2048).decode()
+        sender = self.findClient(conn)
+        receiver = message.split(";")[1]
+        receiver = self.findClient(None,receiver)
+        print("{} {} to {}".format(colored(datetime.datetime.now(), "green"), colored(sender,"cyan"), colored(receiver, "cyan")))
+
+        # print out the message starting after the LOW;RECEIVER until the second to last
+        messageParts = message.split(";")
+        for i in range(len(messageParts))[2:-1]:
+            if i % 2 == 0:
+                print(colored(messageParts[i], "white"), end='')
+            else:
+                print(" " + colored(messageParts[i], "red"))
+        print()
+
+        # replace the name of the sender with the name of the receiver
+        messageParts[1] = str(receiver)
+        message = ";".join(messageParts)
+
+        # send the message to the proper client
+        receiverConn = receiver.getConn()
+        receiverConn.send(message.encode())
+
+
     def locationList(self, conn):
         conn.send(pickle.dumps(self.locationsList))
 
     def commandList(self, conn):
-        listOfCommands = ["help","who","setup","locations","send","exit"]
+        listOfCommands = ["help","who","setup","locations","clear","send","winnow","exit"]
         conn.send(pickle.dumps(listOfCommands))
 
     def clientList(self, conn):
@@ -135,7 +167,7 @@ class StoneHuntGame:
         for client in self.listOfClients:
             listOfClients.append(str(client))
         conn.send(pickle.dumps(listOfClients))
-        print("{} Client list requested by {}".format(datetime.datetime.now(), str(client)))
+        print("{} Client list requested by {}".format(colored(datetime.datetime.now(), "green"), colored(str(client), "cyan")))
 
     # Should only be given to the admin
     def sendGameState(self, conn):
