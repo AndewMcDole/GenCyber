@@ -34,6 +34,8 @@ def clientthread(conn, addr, game):
     # send out the client setup and begin message sending
     game.sendClientSetup(conn)
 
+    conn.send(" ".encode())
+
     while validClient:
         try:
             message = conn.recv(2048).decode()
