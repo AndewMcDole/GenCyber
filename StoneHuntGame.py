@@ -1,5 +1,6 @@
 import datetime
 from termcolor import colored
+import time
 import os
 import pickle # used for serializing lists allowing them to be sent over sockets
 import random
@@ -105,6 +106,8 @@ class StoneHuntGame:
 
         # switches to True when the gmae has started
         self.gameHasStarted = False
+
+        self.SECRET_KEY = str(123)# self.generateSecretKey(10)
 
     def process(self, conn, message):
         command = message.split(";")[0]
@@ -212,7 +215,8 @@ class StoneHuntGame:
                 conn.send("False".encode())
 
         sessionKey = self.generateSessionKey(4)
-        conn.send(sessionKey.encode())
+        message = sessionKey + ";" + self.SECRET_KEY
+        conn.send(message.encode())
 
         # create a new client object with this information
         client = Client(conn, sessionKey, name)
@@ -229,6 +233,7 @@ class StoneHuntGame:
         conn.send("Ready to receive".encode())
         # receive the session key
         sk = conn.recv(1024).decode()
+        # print("Received session key: " + sk)
 
         # check all of the clients to see if they have a matching key
         for client in self.listOfClients:
@@ -237,6 +242,8 @@ class StoneHuntGame:
                 # overwrite connection and return name to client
                 name = client.reconnectClient(conn)
                 conn.send(name.encode())
+                time.sleep(0.1)
+                conn.send(self.SECRET_KEY.encode())
                 return True
 
         conn.send("invalid".encode())
@@ -253,6 +260,17 @@ class StoneHuntGame:
             if key not in self.used_session_keys:
                 validKey = True
                 self.used_session_keys.append(key)
+
+        return str(key)
+
+    def generateSecretKey(self, keyLength):
+        # list of possible key characters
+        list_of_characters = ["9","8","7","6","5","4","3","2","1","0"]
+        validKey = False
+        while not validKey:
+            key = ""
+            for x in range(keyLength):
+                key = key + random.choice(list_of_characters)
 
         return str(key)
 

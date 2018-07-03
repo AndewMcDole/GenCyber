@@ -48,19 +48,19 @@ def displayMainMenu(argv):
     if userChoice == "1":
         server = setupNetwork(argv[1], int(argv[2]))
         print("Setting up client...")
-        name, nameColor, locationColor, location = setupClient(server)
-        mainGameLoop(server, name, nameColor, locationColor, location)
+        name, nameColor, locationColor, location, SECRET_KEY = setupClient(server)
+        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
 
     elif userChoice == "2":
         server = setupNetwork(argv[1], int(argv[2]))
         print("Sending session key...")
-        name, nameColor, locationColor, location = reconnect(server)
-        mainGameLoop(server, name, nameColor, locationColor, location)
+        name, nameColor, locationColor, location, SECRET_KEY = reconnect(server)
+        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
 
     else:
         print("Exiting...")
 
-def mainGameLoop(server, name, nameColor, locationColor, location):
+def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
     """
     This list will hold messsages until the
     user is ready
@@ -108,13 +108,13 @@ def mainGameLoop(server, name, nameColor, locationColor, location):
                 elif (command.lower() == "setup"):
                     getClientSetup(server)
                 elif (command.lower() == "send"):
-                    sendMessage(server)
+                    sendMessage(server, SECRET_KEY)
                 elif (command.lower() == "exit"):
                     exitSequence(server)
                 elif (command.lower() == "clear"):
                     os.system("clear")
                 elif (command.lower() == "winnow"):
-                    winnowAllMessages(lowPriorityMessageQueue, 123)
+                    winnowAllMessages(lowPriorityMessageQueue, SECRET_KEY)
                 else:
                     print("Unknown command")
 
@@ -188,7 +188,7 @@ def exitSequence(server):
     print("Exiting...")
     exit(0)
 
-def sendMessage(server):
+def sendMessage(server, SECRET_KEY):
     server.send("send".encode())
 
     # we need to get the most recent list of connections
@@ -211,7 +211,7 @@ def sendMessage(server):
                 validName = True
 
     # create the message and the chaffs
-    message = createMessage(targetClient, 123)
+    message = createMessage(targetClient, SECRET_KEY)
 
     # animation
     sleepFactor = 0.01
@@ -238,7 +238,7 @@ def createMessage(targetClient, SECRET_KEY):
             phrase = input ("Enter a fake message: ")
             if phrase.lower() == 'cancel' or phrase.lower() == 'redo':
                 break
-            phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * SECRET_KEY)) + ";"
+            phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * int(SECRET_KEY))) + ";"
             phrases.append(phrase)
 
         if phrase.lower() == 'cancel':
@@ -319,7 +319,11 @@ def setupClient(server):
         if serverResponse == "True":
             validName = True
             name = listOfNames[userChoice - 1]
-            sessionKey = server.recv(1024).decode()
+            message = server.recv(1024).decode()
+
+    # receive sessionKey and secret key
+    SECRET_KEY = message.split(";")[1]
+    sessionKey = message.split(";")[0]
 
     # write the session key to a file
     file = open("SessionKey.txt", "w+")
@@ -338,7 +342,7 @@ def setupClient(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location
+    return name, nameColor, locationColor, location, SECRET_KEY
 
 def reconnect(server):
     server.send("reconnect".encode())
@@ -358,6 +362,8 @@ def reconnect(server):
         exit()
 
     name = server.recv(1024).decode()
+    # receive SECRET KEY
+    SECRET_KEY = server.recv(1024).decode()
     nameColor, locationColor = customizePrompt()
 
     server.send("setup".encode())
@@ -370,7 +376,7 @@ def reconnect(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location
+    return name, nameColor, locationColor, location, SECRET_KEY
 
 def customizePrompt():
     print("\nname@location $   <---- Default Prompt")
