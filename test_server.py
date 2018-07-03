@@ -65,6 +65,6 @@ and avoid any undefined function scenarios
 """
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Proper Usage: python3 StoneHuntGameServer.py ip_addr port NumPlayers")
+        print("Proper Usage: python3 server.py ip_addr port NumPlayers")
         exit()
     main(sys.argv)
