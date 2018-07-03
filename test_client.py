@@ -1,4 +1,5 @@
 import enum
+import math
 import os
 import pickle # used for serializing lists allowing them to be sent over sockets
 import random
@@ -23,6 +24,14 @@ def main(argv):
 
 def setupNetwork(ip_addr, port):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # animation
+    sleepFactor = 0.01
+    for i in range(100):
+        print("\rConnecting to server...[{}%]".format(i), end="")
+        time.sleep(sleepFactor)
+    print("\rConnecting to server...[100%]")
+
     server.connect((ip_addr, port))
     return server
 
@@ -112,19 +121,23 @@ def mainGameLoop(server, name, nameColor, locationColor, location):
                     print("Unknown command")
 
 def winnowAllMessages(LPQ, SECRET_KEY):
-    if len(LPQ) == 0:
+    numMessages = len(LPQ)
+    if numMessages == 0:
         print("No messages to winnow yet\n")
         return
 
     # animation
+    sleepFactor = math.log10(numMessages) + numMessages * 2
+    sleepFactor = sleepFactor * 0.01
+    # print("Sleep Factor: " + str(sleepFactor))
     for i in range(100):
         print("\rWinnowing messages...[{}%]".format(i), end="")
-        time.sleep(0.05)
+        time.sleep(sleepFactor)
     print("\rWinnowing messages...[100%]")
 
     for message in LPQ:
         winnow(message, SECRET_KEY)
-        LPQ.remove(message)
+    LPQ.clear()
 
 def winnow(message, SECRET_KEY):
     # strip off the name and the message code
@@ -202,6 +215,14 @@ def sendMessage(server):
     # create the message and the chaffs
     message = createMessage(targetClient, 123)
     server.send(message.encode())
+
+    # animation
+    sleepFactor = 0.01
+    for i in range(100):
+        print("\rTransmitting message...[{}%]".format(i), end="")
+        time.sleep(sleepFactor)
+    print("\rTransmitting message...[100%]")
+
     print()
 
 def createMessage(targetClient, SECRET_KEY):
