@@ -31,10 +31,10 @@ def clientthread(conn, addr, game):
     while not game.hasGameStarted():
         time.sleep(2)
 
+    conn.recv(1024)
+
     # send out the client setup and begin message sending
     game.sendClientSetup(conn)
-
-    conn.send(" ".encode())
 
     while validClient:
         try:

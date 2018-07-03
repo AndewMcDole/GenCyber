@@ -335,11 +335,12 @@ def setupClient(server):
     file.write(str(sessionKey))
     file.close()
 
-    setup = server.recv(2048).decode().split(";")
     nameColor, locationColor = customizePrompt()
 
+    server.send("readyToReceive".encode())
+
     print("Waiting for game to start...")
-    server.recv(1024)
+    setup = server.recv(2048).decode().split(";")
 
     print()
     stones = setup[0]
