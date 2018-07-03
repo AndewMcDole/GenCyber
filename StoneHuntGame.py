@@ -133,8 +133,9 @@ class StoneHuntGame:
 
         # receive the destination client and the message
         message = conn.recv(2048).decode()
-
+        print("Message " + message)
         if message == "cancel":
+            print("canceling")
             return
 
         sender = self.findClient(conn)

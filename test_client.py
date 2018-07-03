@@ -191,6 +191,7 @@ def sendMessage(server):
     while not validName:
         userChoice = input("Who to send to? ").lower()
         if userChoice == 'cancel':
+            server.send("cancel".encode())
             print()
             return
         for client in listOfClients:
@@ -222,7 +223,7 @@ def createMessage(targetClient, SECRET_KEY):
             phrases.append(phrase)
 
         if phrase.lower() == 'cancel':
-            break
+            return "cancel"
         elif phrase.lower() == 'redo':
             continue
 
