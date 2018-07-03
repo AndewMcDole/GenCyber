@@ -214,12 +214,13 @@ def sendMessage(server, SECRET_KEY):
     # create the message and the chaffs
     message = createMessage(targetClient, SECRET_KEY)
 
-    # animation
-    sleepFactor = 0.01
-    for i in range(100):
-        print("\rTransmitting message...[{}%]".format(i), end="")
-        time.sleep(sleepFactor)
-    print("\rTransmitting message...[100%]")
+    if message != "cancel":
+        # animation
+        sleepFactor = 0.01
+        for i in range(100):
+            print("\rTransmitting message...[{}%]".format(i), end="")
+            time.sleep(sleepFactor)
+        print("\rTransmitting message...[100%]")
 
     server.send(message.encode())
     print()
