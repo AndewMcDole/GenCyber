@@ -86,6 +86,7 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
         read_sockets, write_socket, error_socket = select.select(sockets_list,[],[])
 
         for socks in read_sockets:
+            sys.stdout.flush()
             if socks == server:
                 message = receiveMessage(server, lowPriorityMessageQueue, MessageCode.LOW_PRIORITY)
                 lowPriorityMessageQueue.append(message)
