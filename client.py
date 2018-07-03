@@ -89,7 +89,6 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
             sys.stdout.flush()
             if socks == server:
                 message = receiveMessage(server, lowPriorityMessageQueue, MessageCode.LOW_PRIORITY)
-                lowPriorityMessageQueue.append(message)
                 print("Message Received...")
                 # check for notifications
                 displayNotifications(lowPriorityMessageQueue)
@@ -162,7 +161,8 @@ def winnow(message, SECRET_KEY):
 
 def receiveMessage(server, lowPriorityMessageQueue, targetMessageType):
     messageHasBeenReceived = False
-    while not messageHasBeenReceived:
+    messages = [" "]
+    while not messageHasBeenReceived and len(messages) > 0:
         # receive possibly multiple messages
         bulkMessage = server.recv(4096).decode()
 
@@ -177,11 +177,14 @@ def receiveMessage(server, lowPriorityMessageQueue, targetMessageType):
             # piece the message together without the message type in front
             message = ";".join(messagePieces)
 
+            if messageType == MessageCode.LOW_PRIORITY:
+                lowPriorityMessageQueue.append(message)
             if messageType == targetMessageType:
                 targetMessage = message
                 messageHasBeenReceived = True
-            else:
-                lowPriorityMessageQueue.append(message)
+
+            messages.remove(message)
+
 
     return targetMessage
 
