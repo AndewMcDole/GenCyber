@@ -8,7 +8,7 @@ import StoneHuntGame
 def main(argv):
     print("Starting server on {} on {}".format(argv[1], argv[2]))
     server = setupNetwork(argv[1], int(argv[2]))
-    game = StoneHuntGame.StoneHuntGame()
+    game = StoneHuntGame.StoneHuntGame(int(argv[3]))
     print("Awaiting connections...")
     while True:
         conn, addr = server.accept()
@@ -64,4 +64,7 @@ This allows us to put the main at the top
 and avoid any undefined function scenarios
 """
 if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print("Proper Usage: python3 StoneHuntGameServer.py ip_addr port NumPlayers")
+        exit()
     main(sys.argv)

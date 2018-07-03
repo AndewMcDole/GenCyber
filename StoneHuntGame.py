@@ -73,10 +73,10 @@ Stone Hunt Game
 
 class StoneHuntGame:
 
-    def __init__(self):
+    def __init__(self, NumPlayers):
         self.listOfClients = []
         self.listOfAdmins = []
-        self.maxNumClients = 2
+        self.maxNumClients = NumPlayers
 
         # store list of possible character names from text file
         currDir = os.getcwd()
@@ -124,13 +124,19 @@ class StoneHuntGame:
     """
 
     def transmitMessage(self, conn):
+        print("Beginning transmit...")
         # transmit client list
         listOfClients = []
         for client in self.listOfClients:
             listOfClients.append(str(client))
         conn.send(pickle.dumps(listOfClients))
 
+        # receive the destination client and the message
         message = conn.recv(2048).decode()
+
+        if message == "cancel":
+            return
+
         sender = self.findClient(conn)
         receiver = message.split(";")[1]
         receiver = self.findClient(None,receiver)

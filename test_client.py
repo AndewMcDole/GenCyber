@@ -113,17 +113,18 @@ def mainGameLoop(server, name, nameColor, locationColor, location):
 
 def winnowAllMessages(LPQ, SECRET_KEY):
     if len(LPQ) == 0:
-        print("No messages to winnow yet")
+        print("No messages to winnow yet\n")
         return
 
     # animation
     for i in range(100):
         print("\rWinnowing messages...[{}%]".format(i), end="")
-        time.sleep(0.1)
+        time.sleep(0.05)
     print("\rWinnowing messages...[100%]")
 
     for message in LPQ:
         winnow(message, SECRET_KEY)
+        LPQ.remove(message)
 
 def winnow(message, SECRET_KEY):
     # strip off the name and the message code
@@ -209,7 +210,7 @@ def createMessage(targetClient, SECRET_KEY):
         phrases = []
         phrase = input ("Enter your correct message: ")
         if phrase.lower() == 'cancel':
-            break
+            return "cancel"
 
         phrase = phrase + ";" + Hashing.get_hash_(phrase, str(SECRET_KEY)) + ";"
         phrases.append(phrase)
