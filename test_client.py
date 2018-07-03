@@ -46,14 +46,12 @@ def displayMainMenu(argv):
         userChoice = input("What would you like to do? ")
 
     if userChoice == "1":
-        print("Connecting to server...")
         server = setupNetwork(argv[1], int(argv[2]))
         print("Setting up client...")
         name, nameColor, locationColor, location = setupClient(server)
         mainGameLoop(server, name, nameColor, locationColor, location)
 
     elif userChoice == "2":
-        print("Reconnecting to server...")
         server = setupNetwork(argv[1], int(argv[2]))
         print("Sending session key...")
         name, nameColor, locationColor, location = reconnect(server)
@@ -214,7 +212,6 @@ def sendMessage(server):
 
     # create the message and the chaffs
     message = createMessage(targetClient, 123)
-    server.send(message.encode())
 
     # animation
     sleepFactor = 0.01
@@ -223,6 +220,7 @@ def sendMessage(server):
         time.sleep(sleepFactor)
     print("\rTransmitting message...[100%]")
 
+    server.send(message.encode())
     print()
 
 def createMessage(targetClient, SECRET_KEY):
