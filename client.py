@@ -40,10 +40,16 @@ def displayMainMenu(argv):
     print()
     for i in range(len(userOptions)):
         print("{}. {}".format(i + 1, userOptions[i]))
-    userChoice = input("\nWhat would you like to do? ")
+    try:
+        userChoice = input("\nWhat would you like to do? ")
+    except ValueError:
+        print("Please use numbers for selections")
 
     while not userChoice or int(userChoice) not in range(len(userOptions) + 1):
-        userChoice = input("What would you like to do? ")
+        try:
+            userChoice = input("What would you like to do? ")
+        except ValueError:
+            print("Please use numbers for selections")
 
     if userChoice == "1":
         server = setupNetwork(argv[1], int(argv[2]))
@@ -198,8 +204,6 @@ def sendMessage(server, SECRET_KEY):
     # we need to get the most recent list of connections
     listOfClients = pickle.loads(server.recv(2048))
     print(listOfClients)
-    # lowercase everything - Look up python list comprehension for syntax below
-    # lowerlistOfClients = [i.lower() for i in listOfClients]
 
     # prompt the user for who to send a message to
     validName = False
@@ -233,14 +237,14 @@ def createMessage(targetClient, SECRET_KEY):
     validMessage = False
     while not validMessage:
         phrases = []
-        phrase = input ("Enter your correct message: ")
+        phrase = keyboardInput ("Enter your correct message: ")
         if phrase.lower() == 'cancel':
             return "cancel"
 
         phrase = phrase + ";" + Hashing.get_hash_(phrase, str(SECRET_KEY)) + ";"
         phrases.append(phrase)
         for x in range (numberOfChaffs - 1):
-            phrase = input ("Enter a fake message: ")
+            phrase = keyboardInput ("Enter a fake message: ")
             if phrase.lower() == 'cancel' or phrase.lower() == 'redo':
                 break
             phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * int(SECRET_KEY))) + ";"
@@ -308,13 +312,13 @@ def setupClient(server):
         for i in range(len(listOfNames)):
             print("{}. {}".format(i + 1, listOfNames[i]))
         try:
-            userChoice = int(input("\nChoose your character: "))
+            userChoice = int(keyboardInput("\nChoose your character: "))
         except ValueError:
             print("Please use numbers for selections")
 
         while not userChoice or not 1 <= userChoice <= len(listOfNames):
             try:
-                userChoice = int(input("Choose your character: "))
+                userChoice = int(keyboardInput("Choose your character: "))
             except ValueError:
                 print("Please use numbers for selections")
 
@@ -360,7 +364,7 @@ def reconnect(server):
         with open("sessionKey.txt", "r") as file:
             sessionKey = file.readline()
     else:
-        sessionKey = input("SessionKey.txt not found, please enter a session key")
+        sessionKey = keyboardInput("SessionKey.txt not found, please enter a session key")
     # block until server is ready
     server.recv(1024)
     server.send(sessionKey.encode())
@@ -412,6 +416,21 @@ def customizePrompt():
     location_choice = color_choice
 
     return name_choice, location_choice
+
+def keyboardInput(prompt):
+    _input = input(prompt)
+    # using a list to make modifications instead of modifying the string
+    editedList = list(_input)
+
+    list_of_forbidden_chars = [";"]
+    # Sanitize input for any characters that would cause issues
+    for forb_char in list_of_forbidden_chars:
+        editedList = [i for i in editedList if i != forb_char]
+
+
+    # rejoin the input list back together to a string
+    output = "".join(editedList)
+    return output
 
 if __name__ == "__main__":
     main(sys.argv)
