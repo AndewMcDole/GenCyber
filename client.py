@@ -337,7 +337,8 @@ def setupClient(server):
 
     nameColor, locationColor = customizePrompt()
 
-    server.send("readyToReceive".encode())
+    # Tell the server that we are ready and waiting for the game to start
+    server.send("ready".encode())
 
     print("Waiting for game to start...")
     setup = server.recv(2048).decode().split(";")

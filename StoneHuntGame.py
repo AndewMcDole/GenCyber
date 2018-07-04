@@ -78,6 +78,7 @@ class StoneHuntGame:
         self.listOfClients = []
         self.listOfAdmins = []
         self.maxNumClients = NumPlayers
+        self.numClientsReady = 0
 
         # store list of possible character names from text file
         currDir = os.getcwd()
@@ -189,6 +190,12 @@ class StoneHuntGame:
     """
     Connections and game setup
     """
+
+    def clientReady(self, conn):
+        self.numClientsReady += 1
+        if self.numClientsReady == self.maxNumClients:
+            print("All players ready, begin!")
+            self.gameHasStarted = True
 
     def addClient(self, conn):
         if len(self.listOfClients) >= self.maxNumClients:
@@ -339,6 +346,3 @@ class StoneHuntGame:
         # choose the gatherer
         client = random.choice(self.listOfClients)
         client.setGatherer()
-
-        print("Game state set, begin!")
-        self.gameHasStarted = True
