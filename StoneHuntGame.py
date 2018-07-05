@@ -303,7 +303,7 @@ class StoneHuntGame:
             isGatherer = client.checkGatherer()
             setup = str(str(stones)+";"+location)
             if isGatherer:
-                setup = setup + ";"
+                setup = setup + ";" + "Gatherer"
             conn.send(setup.encode())
 
     def initializeGame(self):
