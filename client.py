@@ -299,7 +299,7 @@ def setupClient(server):
     server.send("connect".encode())
 
     # check if server is full
-    if server.recv(512) == "full":
+    if server.recv(512).decode() == "full":
         print("Server is full")
         exit()
 
