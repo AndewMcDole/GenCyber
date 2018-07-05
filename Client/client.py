@@ -341,8 +341,6 @@ def setupClient(server):
     file.write(str(sessionKey))
     file.close()
 
-    badwords = pickle.loads(server.recv(2048))
-
     nameColor, locationColor = customizePrompt()
 
     # Tell the server that we are ready and waiting for the game to start
@@ -350,6 +348,7 @@ def setupClient(server):
 
     print("Waiting for game to start...")
     setup = server.recv(2048).decode().split(";")
+    badwords = pickle.loads(server.recv(2048))
 
     print()
     stones = setup[0]
