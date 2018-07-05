@@ -54,13 +54,13 @@ def displayMainMenu(argv):
     if userChoice == "1":
         server = setupNetwork(argv[1], int(argv[2]))
         print("Setting up client...")
-        name, nameColor, locationColor, location, SECRET_KEY = setupClient(server)
+        name, nameColor, locationColor, location, SECRET_KEY, badwords = setupClient(server)
         mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords)
 
     elif userChoice == "2":
         server = setupNetwork(argv[1], int(argv[2]))
         print("Sending session key...")
-        name, nameColor, locationColor, location, SECRET_KEY = reconnect(server)
+        name, nameColor, locationColor, location, SECRET_KEY, badwords = reconnect(server)
         mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords)
 
     else:
@@ -359,7 +359,7 @@ def setupClient(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location, SECRET_KEY
+    return name, nameColor, locationColor, location, SECRET_KEY, badwords
 
 def reconnect(server):
     server.send("reconnect".encode())
@@ -381,6 +381,7 @@ def reconnect(server):
     name = server.recv(1024).decode()
     # receive SECRET KEY
     SECRET_KEY = server.recv(1024).decode()
+    badwords = pickle.loads(server.recv(2048))
     nameColor, locationColor = customizePrompt()
 
     server.send("setup".encode())
@@ -393,7 +394,7 @@ def reconnect(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location, SECRET_KEY
+    return name, nameColor, locationColor, location, SECRET_KEY, badwords
 
 def customizePrompt():
     print("\nname@location $   <---- Default Prompt")
