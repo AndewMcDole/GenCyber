@@ -8,7 +8,6 @@ import socket
 import sys
 from termcolor import colored
 import time
-import unicode
 
 import Hashing
 
@@ -300,8 +299,7 @@ def setupClient(server):
     server.send("connect".encode())
 
     # check if server is full
-    response = unicode(server.recv(1024).decode(), errors="ignore")
-    if response == "full":
+    if server.recv(512) == "full":
         print("Server is full")
         exit()
 
