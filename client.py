@@ -8,6 +8,7 @@ import socket
 import sys
 from termcolor import colored
 import time
+import unicode
 
 import Hashing
 
