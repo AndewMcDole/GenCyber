@@ -79,6 +79,7 @@ class StoneHuntGame:
         self.listOfAdmins = []
         self.maxNumClients = NumPlayers
         self.numClientsReady = 0
+        self.badwords = []
 
         # store list of possible character names from text file
         currDir = os.getcwd()
