@@ -361,7 +361,7 @@ def reconnect(server):
     server.send("reconnect".encode())
     sessionKey = 0
     if os.path.isfile("SessionKey.txt"):
-        with open("sessionKey.txt", "r") as file:
+        with open("SessionKey.txt", "r") as file:
             sessionKey = file.readline()
     else:
         sessionKey = keyboardInput("SessionKey.txt not found, please enter a session key")
