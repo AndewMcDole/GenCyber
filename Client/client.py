@@ -55,18 +55,18 @@ def displayMainMenu(argv):
         server = setupNetwork(argv[1], int(argv[2]))
         print("Setting up client...")
         name, nameColor, locationColor, location, SECRET_KEY = setupClient(server)
-        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
+        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords)
 
     elif userChoice == "2":
         server = setupNetwork(argv[1], int(argv[2]))
         print("Sending session key...")
         name, nameColor, locationColor, location, SECRET_KEY = reconnect(server)
-        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
+        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords)
 
     else:
         print("Exiting...")
 
-def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
+def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords):
     """
     This list will hold messsages until the
     user is ready
@@ -120,11 +120,11 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                 elif (command.lower() == "clear"):
                     os.system("clear")
                 elif (command.lower() == "winnow"):
-                    winnowAllMessages(lowPriorityMessageQueue, SECRET_KEY)
+                    winnowAllMessages(lowPriorityMessageQueue, SECRET_KEY, badwords)
                 else:
                     print("Unknown command")
 
-def winnowAllMessages(LPQ, SECRET_KEY):
+def winnowAllMessages(LPQ, SECRET_KEY, filter):
     numMessages = len(LPQ)
     if numMessages == 0:
         print("No messages to winnow yet\n")
@@ -140,10 +140,10 @@ def winnowAllMessages(LPQ, SECRET_KEY):
     print("\rWinnowing messages...[100%]")
 
     for message in LPQ:
-        winnow(message, SECRET_KEY)
+        winnow(message, SECRET_KEY, filter)
     LPQ.clear()
 
-def winnow(message, SECRET_KEY):
+def winnow(message, SECRET_KEY, filter):
     # strip off the name and the message code
     messageParts = message.split(";")
     print("From: {}".format(messageParts[1]))
@@ -158,9 +158,11 @@ def winnow(message, SECRET_KEY):
             hash_result = Hashing.check_hash(messageParts[x - 1], messageParts[x], str(SECRET_KEY))
             if hash_result:
                 line = line + " Hashes Match"
+                line = filter(filter, line)
                 print (colored(line, "green"))
             else:
                 line = line + " Hashes Do Not Match"
+                line = filter(filter, line)
                 print (colored(line, "red"))
             line = ""
     print()
@@ -299,7 +301,7 @@ def setupClient(server):
     server.send("connect".encode())
 
     # check if server is full
-    if server.recv(512).decode() == "full":
+    if server.recv(512) == "full":
         print("Server is full")
         exit()
 
@@ -339,6 +341,8 @@ def setupClient(server):
     file.write(str(sessionKey))
     file.close()
 
+    badwords = pickle.loads(server.recv(2048))
+
     nameColor, locationColor = customizePrompt()
 
     # Tell the server that we are ready and waiting for the game to start
@@ -352,7 +356,7 @@ def setupClient(server):
     print("Stone(s): " + stones)
     location = setup[1]
     print("Location: " + location)
-    if len(setup) >= 3:
+    if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
     return name, nameColor, locationColor, location, SECRET_KEY
@@ -416,6 +420,12 @@ def customizePrompt():
     location_choice = color_choice
 
     return name_choice, location_choice
+
+def filter(badwords, message):
+    replace = "*"
+    for word in badwords:
+        message = message.replace(str(word), replace * len(word))
+    return message
 
 def keyboardInput(prompt):
     _input = input(prompt)
