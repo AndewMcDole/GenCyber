@@ -348,6 +348,7 @@ def setupClient(server):
 
     print("Waiting for game to start...")
     setup = server.recv(2048).decode().split(";")
+    time.sleep(0.1)
     badwords = pickle.loads(server.recv(2048))
 
     print()
