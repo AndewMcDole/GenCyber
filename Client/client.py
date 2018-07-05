@@ -143,7 +143,7 @@ def winnowAllMessages(LPQ, SECRET_KEY, filter):
         winnow(message, SECRET_KEY, filter)
     LPQ.clear()
 
-def winnow(message, SECRET_KEY, filter):
+def winnow(message, SECRET_KEY, wordlist):
     # strip off the name and the message code
     messageParts = message.split(";")
     print("From: {}".format(messageParts[1]))
@@ -158,11 +158,11 @@ def winnow(message, SECRET_KEY, filter):
             hash_result = Hashing.check_hash(messageParts[x - 1], messageParts[x], str(SECRET_KEY))
             if hash_result:
                 line = line + " Hashes Match"
-                line = filter(filter, line)
+                line = filter(wordlist, line)
                 print (colored(line, "green"))
             else:
                 line = line + " Hashes Do Not Match"
-                line = filter(filter, line)
+                line = filter(wordlist, line)
                 print (colored(line, "red"))
             line = ""
     print()
