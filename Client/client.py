@@ -114,7 +114,7 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, b
                 elif (command.lower() == "setup"):
                     getClientSetup(server)
                 elif (command.lower() == "send"):
-                    sendMessage(server, SECRET_KEY)
+                    sendMessage(server, SECRET_KEY, badwords)
                 elif (command.lower() == "exit"):
                     exitSequence(server)
                 elif (command.lower() == "clear"):
@@ -200,7 +200,7 @@ def exitSequence(server):
     print("Exiting...")
     exit(0)
 
-def sendMessage(server, SECRET_KEY):
+def sendMessage(server, SECRET_KEY, badwords):
     server.send("send".encode())
 
     # we need to get the most recent list of connections
@@ -221,7 +221,7 @@ def sendMessage(server, SECRET_KEY):
                 validName = True
 
     # create the message and the chaffs
-    message = createMessage(targetClient, SECRET_KEY)
+    message = createMessage(targetClient, SECRET_KEY, badwords)
 
     if message != "cancel":
         # animation
@@ -234,12 +234,13 @@ def sendMessage(server, SECRET_KEY):
     server.send(message.encode())
     print()
 
-def createMessage(targetClient, SECRET_KEY):
+def createMessage(targetClient, SECRET_KEY, badwords):
     numberOfChaffs = 3
     validMessage = False
     while not validMessage:
         phrases = []
         phrase = keyboardInput ("Enter your correct message: ")
+        phrase = filter(badwords, phrase)
         if phrase.lower() == 'cancel':
             return "cancel"
 
@@ -247,6 +248,7 @@ def createMessage(targetClient, SECRET_KEY):
         phrases.append(phrase)
         for x in range (numberOfChaffs - 1):
             phrase = keyboardInput ("Enter a fake message: ")
+            phrase = filter(badwords, phrase)
             if phrase.lower() == 'cancel' or phrase.lower() == 'redo':
                 break
             phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * int(SECRET_KEY))) + ";"
@@ -336,6 +338,8 @@ def setupClient(server):
     SECRET_KEY = message.split(";")[1]
     sessionKey = message.split(";")[0]
 
+    badwords = pickle.loads(server.recv(2048))
+
     # write the session key to a file
     file = open("SessionKey.txt", "w+")
     file.write(str(sessionKey))
@@ -348,7 +352,6 @@ def setupClient(server):
 
     print("Waiting for game to start...")
     setup = server.recv(2048).decode().split(";")
-    badwords = pickle.loads(server.recv(2048))
 
     print()
     stones = setup[0]
@@ -422,7 +425,7 @@ def customizePrompt():
     return name_choice, location_choice
 
 def filter(badwords, message):
-    replace = "*"
+    replace = ""
     for word in badwords:
         message = message.replace(str(word), replace * len(word))
     return message

@@ -233,6 +233,7 @@ class StoneHuntGame:
         sessionKey = self.generateSessionKey(4)
         message = sessionKey + ";" + self.SECRET_KEY
         conn.send(message.encode())
+        time.sleep(0.2)
         conn.send(pickle.dumps(self.badwords))
 
         # create a new client object with this information
@@ -318,7 +319,7 @@ class StoneHuntGame:
             conn.send(setup.encode())
 
     def filter(self, message):
-        replace = "*"
+        replace = ""
         for word in self.badwords:
             message = message.replace(str(word), replace * len(word))
         return message
