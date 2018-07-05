@@ -336,6 +336,8 @@ def setupClient(server):
     SECRET_KEY = message.split(";")[1]
     sessionKey = message.split(";")[0]
 
+    badwords = pickle.loads(server.recv(2048))
+
     # write the session key to a file
     file = open("SessionKey.txt", "w+")
     file.write(str(sessionKey))
@@ -348,8 +350,6 @@ def setupClient(server):
 
     print("Waiting for game to start...")
     setup = server.recv(2048).decode().split(";")
-    time.sleep(0.1)
-    badwords = pickle.loads(server.recv(2048))
 
     print()
     stones = setup[0]
