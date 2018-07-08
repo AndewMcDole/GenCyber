@@ -324,10 +324,12 @@ def setupClient(server):
 
         # once we choose a name from the list, send it to the server for approval
         server.send(listOfNames[userChoice - 1].encode())
+        print("Waiting for name approval...")
         serverResponse = server.recv(1024).decode()
         if serverResponse == "True":
             validName = True
             name = listOfNames[userChoice - 1]
+            print("Waiting on session key...")
             message = server.recv(1024).decode()
 
     # receive sessionKey and secret key
