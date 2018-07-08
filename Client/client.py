@@ -54,19 +54,19 @@ def displayMainMenu(argv):
     if userChoice == "1":
         server = setupNetwork(argv[1], int(argv[2]))
         print("Setting up client...")
-        name, nameColor, locationColor, location, SECRET_KEY, badwords = setupClient(server)
-        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords)
+        name, nameColor, locationColor, location, SECRET_KEY = setupClient(server)
+        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
 
     elif userChoice == "2":
         server = setupNetwork(argv[1], int(argv[2]))
         print("Sending session key...")
-        name, nameColor, locationColor, location, SECRET_KEY, badwords = reconnect(server)
-        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords)
+        name, nameColor, locationColor, location, SECRET_KEY = reconnect(server)
+        mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
 
     else:
         print("Exiting...")
 
-def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, badwords):
+def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
     """
     This list will hold messsages until the
     user is ready
@@ -114,13 +114,13 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY, b
                 elif (command.lower() == "setup"):
                     getClientSetup(server)
                 elif (command.lower() == "send"):
-                    sendMessage(server, SECRET_KEY, badwords)
+                    sendMessage(server, SECRET_KEY)
                 elif (command.lower() == "exit"):
                     exitSequence(server)
                 elif (command.lower() == "clear"):
                     os.system("clear")
                 elif (command.lower() == "winnow"):
-                    winnowAllMessages(lowPriorityMessageQueue, SECRET_KEY, badwords)
+                    winnowAllMessages(lowPriorityMessageQueue, SECRET_KEY)
                 else:
                     print("Unknown command")
 
@@ -140,10 +140,10 @@ def winnowAllMessages(LPQ, SECRET_KEY, filter):
     print("\rWinnowing messages...[100%]")
 
     for message in LPQ:
-        winnow(message, SECRET_KEY, filter)
+        winnow(message, SECRET_KEY)
     LPQ.clear()
 
-def winnow(message, SECRET_KEY, wordlist):
+def winnow(message, SECRET_KEY):
     # strip off the name and the message code
     messageParts = message.split(";")
     print("From: {}".format(messageParts[1]))
@@ -158,11 +158,9 @@ def winnow(message, SECRET_KEY, wordlist):
             hash_result = Hashing.check_hash(messageParts[x - 1], messageParts[x], str(SECRET_KEY))
             if hash_result:
                 line = line + " Hashes Match"
-                line = filter(wordlist, line)
                 print (colored(line, "green"))
             else:
                 line = line + " Hashes Do Not Match"
-                line = filter(wordlist, line)
                 print (colored(line, "red"))
             line = ""
     print()
@@ -200,7 +198,7 @@ def exitSequence(server):
     print("Exiting...")
     exit(0)
 
-def sendMessage(server, SECRET_KEY, badwords):
+def sendMessage(server, SECRET_KEY):
     server.send("send".encode())
 
     # we need to get the most recent list of connections
@@ -221,7 +219,7 @@ def sendMessage(server, SECRET_KEY, badwords):
                 validName = True
 
     # create the message and the chaffs
-    message = createMessage(targetClient, SECRET_KEY, badwords)
+    message = createMessage(targetClient, SECRET_KEY)
 
     if message != "cancel":
         # animation
@@ -234,13 +232,12 @@ def sendMessage(server, SECRET_KEY, badwords):
     server.send(message.encode())
     print()
 
-def createMessage(targetClient, SECRET_KEY, badwords):
+def createMessage(targetClient, SECRET_KEY):
     numberOfChaffs = 3
     validMessage = False
     while not validMessage:
         phrases = []
         phrase = keyboardInput ("Enter your correct message: ")
-        phrase = filter(badwords, phrase)
         if phrase.lower() == 'cancel':
             return "cancel"
 
@@ -248,7 +245,6 @@ def createMessage(targetClient, SECRET_KEY, badwords):
         phrases.append(phrase)
         for x in range (numberOfChaffs - 1):
             phrase = keyboardInput ("Enter a fake message: ")
-            phrase = filter(badwords, phrase)
             if phrase.lower() == 'cancel' or phrase.lower() == 'redo':
                 break
             phrase = phrase + ";" + Hashing.get_hash_(phrase, str(random.random() * int(SECRET_KEY))) + ";"
@@ -340,8 +336,6 @@ def setupClient(server):
 
     server.send("ready".encode())
 
-    badwords = pickle.loads(server.recv(2048))
-
     # write the session key to a file
     file = open("SessionKey.txt", "w+")
     file.write(str(sessionKey))
@@ -363,7 +357,7 @@ def setupClient(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location, SECRET_KEY, badwords
+    return name, nameColor, locationColor, location, SECRET_KEY
 
 def reconnect(server):
     server.send("reconnect".encode())
@@ -385,7 +379,6 @@ def reconnect(server):
     name = server.recv(1024).decode()
     # receive SECRET KEY
     SECRET_KEY = server.recv(1024).decode()
-    badwords = pickle.loads(server.recv(2048))
     nameColor, locationColor = customizePrompt()
 
     server.send("setup".encode())
@@ -398,7 +391,7 @@ def reconnect(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location, SECRET_KEY, badwords
+    return name, nameColor, locationColor, location, SECRET_KEY
 
 def customizePrompt():
     print("\nname@location $   <---- Default Prompt")
@@ -425,12 +418,6 @@ def customizePrompt():
     location_choice = color_choice
 
     return name_choice, location_choice
-
-def filter(badwords, message):
-    replace = ""
-    for word in badwords:
-        message = message.replace(str(word), replace * len(word))
-    return message
 
 def keyboardInput(prompt):
     _input = input(prompt)

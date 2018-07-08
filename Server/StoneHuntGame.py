@@ -79,7 +79,6 @@ class StoneHuntGame:
         self.listOfAdmins = []
         self.maxNumClients = NumPlayers
         self.numClientsReady = 0
-        self.badwords = []
 
         # store list of possible character names from text file
         currDir = os.getcwd()
@@ -88,12 +87,6 @@ class StoneHuntGame:
         characterFile = open(characterFilepath, "r")
         for line in characterFile:
             self.characterList.append(line.strip("\n"))
-
-        path = os.path.join(currDir, ".words.txt")
-        wordfile = open(path, "r")
-        list = pickle.load(open(".words.txt", "rb"))
-        for word in list:
-            self.badwords.append(word.decode("cp037"))
 
         # Names are moved from valid to used so clients cant choose the same name
         self.valid_hero_names = self.characterList.copy()
@@ -152,8 +145,7 @@ class StoneHuntGame:
         print("{} {} to {}".format(colored(datetime.datetime.now(), "green"), colored(sender,"cyan"), colored(receiver, "cyan")))
 
         # print out the message starting after the LOW;RECEIVER until the second to last
-        displaymessage = self.filter(message)
-        messageParts = displaymessage.split(";")
+        messageParts = message.split(";")
         for i in range(len(messageParts))[2:-1]:
             if i % 2 == 0:
                 print(colored(messageParts[i], "white"), end='')
@@ -162,7 +154,6 @@ class StoneHuntGame:
         print()
 
         # replace the name of the sender with the name of the receiver
-        message = message.split(";")
         messageParts[1] = str(receiver)
         message = ";".join(messageParts)
 
@@ -238,8 +229,6 @@ class StoneHuntGame:
         message = sessionKey + ";" + self.SECRET_KEY
         conn.send(message.encode())
         conn.recv(1024).decode()
-        # time.sleep(0.2)
-        conn.send(pickle.dumps(self.badwords))
 
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
@@ -267,7 +256,6 @@ class StoneHuntGame:
                 conn.send(name.encode())
                 time.sleep(0.1)
                 conn.send(self.SECRET_KEY.encode())
-                conn.send(pickle.dumps(self.badwords))
                 return True
 
         conn.send("invalid".encode())
@@ -322,12 +310,6 @@ class StoneHuntGame:
             if isGatherer:
                 setup = setup + ";"
             conn.send(setup.encode())
-
-    def filter(self, message):
-        replace = ""
-        for word in self.badwords:
-            message = message.replace(str(word), replace * len(word))
-        return message
 
     def initializeGame(self):
         print("All players connected, initializing game state...")
