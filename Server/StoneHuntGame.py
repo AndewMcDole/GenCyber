@@ -221,7 +221,7 @@ class StoneHuntGame:
             if not name:
                 return False
 
-            if name not in self.used_hero_names:
+            if name in self.valid_hero_names:
                 self.valid_hero_names.remove(name)
                 self.used_hero_names.append(name)
                 validName = True

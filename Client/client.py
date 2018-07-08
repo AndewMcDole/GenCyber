@@ -356,7 +356,7 @@ def setupClient(server):
     print("Stone(s): " + stones)
     location = setup[1]
     print("Location: " + location)
-    if len(setup) > 3:
+    if len(setup) >= 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
     return name, nameColor, locationColor, location, SECRET_KEY
