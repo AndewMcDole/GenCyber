@@ -236,9 +236,10 @@ class StoneHuntGame:
 
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
-        self.clientReady(conn, sessionKey, name)
-
-        return True
+        if readyMessage = "ready":
+            self.clientReady(conn, sessionKey, name)
+            return True
+        return False
 
     def reconnect(self, conn):
         # The message does no matter, we are telling the client the server is ready to receive
