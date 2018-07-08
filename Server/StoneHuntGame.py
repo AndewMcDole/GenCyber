@@ -191,7 +191,11 @@ class StoneHuntGame:
     Connections and game setup
     """
 
-    def clientReady(self, conn):
+    def clientReady(self, conn, sessionKey, name):
+        # create a new client object with this information
+        client = Client(conn, sessionKey, name)
+        self.listOfClients.append(client)
+
         # check to see if enough clients have connected to start the game
         if len(self.listOfClients) >= self.maxNumClients:
             self.initializeGame()
@@ -217,7 +221,7 @@ class StoneHuntGame:
             if not name:
                 return False
 
-            if name not in self.used_hero_names:
+            if name in self.valid_hero_names:
                 self.valid_hero_names.remove(name)
                 self.used_hero_names.append(name)
                 validName = True
@@ -229,14 +233,6 @@ class StoneHuntGame:
         message = sessionKey + ";" + self.SECRET_KEY
         conn.send(message.encode())
         conn.recv(1024).decode()
-
-        # wait for the client to indicate they are ready to start
-        readyMessage = conn.recv(1024).decode()
-        self.clientReady(conn)
-
-        # create a new client object with this information
-        client = Client(conn, sessionKey, name)
-        self.listOfClients.append(client)
 
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
