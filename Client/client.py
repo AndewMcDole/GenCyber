@@ -146,7 +146,7 @@ def winnowAllMessages(LPQ, SECRET_KEY):
 def winnow(message, SECRET_KEY):
     # strip off the name and the message code
     messageParts = message.split(";")
-    print("From: {}".format(messageParts[1]))
+    print("\nFrom: {}".format(messageParts[1]))
 
     line = ""
     for x in range(len(messageParts))[2:]:
