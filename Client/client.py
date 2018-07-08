@@ -338,6 +338,8 @@ def setupClient(server):
     SECRET_KEY = message.split(";")[1]
     sessionKey = message.split(";")[0]
 
+    server.send("ready".encode())
+
     badwords = pickle.loads(server.recv(2048))
 
     # write the session key to a file

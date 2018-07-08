@@ -233,7 +233,8 @@ class StoneHuntGame:
         sessionKey = self.generateSessionKey(4)
         message = sessionKey + ";" + self.SECRET_KEY
         conn.send(message.encode())
-        time.sleep(0.2)
+        conn.recv(1024).decode()
+        # time.sleep(0.2)
         conn.send(pickle.dumps(self.badwords))
 
         # create a new client object with this information
