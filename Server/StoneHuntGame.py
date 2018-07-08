@@ -237,6 +237,10 @@ class StoneHuntGame:
         # time.sleep(0.2)
         conn.send(pickle.dumps(self.badwords))
 
+        # wait for the client to indicate they are ready to start
+        readyMessage = conn.recv(1024).decode()
+        self.clientReady(conn)
+
         # create a new client object with this information
         client = Client(conn, sessionKey, name)
         self.listOfClients.append(client)

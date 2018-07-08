@@ -26,10 +26,6 @@ def clientthread(conn, addr, game):
     elif openingRequest == "admin":
         validClient = game.sendGameState(conn)
 
-    # wait for the client to indicate they are ready to start
-    readyMessage = conn.recv(1024).decode()
-    game.clientReady(conn)
-
     # block this thread until the game is started
     # check every 2 seconds
     while not game.hasGameStarted():
