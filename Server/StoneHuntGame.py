@@ -154,7 +154,7 @@ class StoneHuntGame:
         print()
 
         # replace the name of the sender with the name of the receiver
-        messageParts[1] = str(receiver)
+        messageParts[1] = str(sender)
         message = ";".join(messageParts)
 
         # send the message to the proper client
