@@ -124,7 +124,7 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                 else:
                     print("Unknown command")
 
-def winnowAllMessages(LPQ, SECRET_KEY, filter):
+def winnowAllMessages(LPQ, SECRET_KEY):
     numMessages = len(LPQ)
     if numMessages == 0:
         print("No messages to winnow yet\n")
