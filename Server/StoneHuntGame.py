@@ -238,8 +238,8 @@ class StoneHuntGame:
         client = Client(conn, sessionKey, name)
         self.listOfClients.append(client)
 
-        return True
-        
+        # wait for the client to indicate they are ready to start
+        readyMessage = conn.recv(1024).decode()
         if readyMessage == "ready":
             self.clientReady(conn, sessionKey, name)
             return True
