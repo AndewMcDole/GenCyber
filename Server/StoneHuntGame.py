@@ -175,7 +175,7 @@ class StoneHuntGame:
         for client in self.listOfClients:
             listOfClients.append(str(client))
         conn.send(pickle.dumps(listOfClients))
-        print("{} Client list requested by {}".format(colored(datetime.datetime.now(), "green"), colored(str(requested_client), "cyan")))
+        print("{} Client list requested by {}".format(colored(datetime.datetime.now(), "green"), colored(str(request_client), "cyan")))
 
     # Should only be given to the admin
     def sendGameState(self, conn):
