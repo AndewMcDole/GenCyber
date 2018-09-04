@@ -39,12 +39,12 @@ class Session:
                 print("Session {} closed by server".format(self.ID))
                 return
 
-            for client in self.list_of_clients:
-                self.broadcast('\rWaiting for players... {}/{}'.format(len(self.list_of_clients), self.maxNumClients))
-            time.sleep(2)
+            self.broadcast('\rWaiting for players... {}/{}'.format(len(self.list_of_clients), self.maxNumClients))
+            time.sleep(3)
 
         # all clients connected, notify then and start game
         self.broadcast("start")
+        self.state = "Running"
 
         while True:
             pass

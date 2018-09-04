@@ -58,7 +58,7 @@ class SessionServer():
 
     def addNewClient(self, conn, ip):
         # Send initial session list
-        conn.send(pickle.dumps(self.list_of_sessions))
+        self.sendSessionList(conn)
 
         self.list_of_clients.append(conn)
         self.lifetime_num_clients += 1
@@ -73,7 +73,7 @@ class SessionServer():
                     print(list_of_commands)
                     print()
                 elif command == "clients":
-                    print("Number of clients not in session: {}".format(len(self.list_of_clients)))
+                    print("Total number of clients: {}".format(len(self.list_of_clients)))
                     print()
                 elif command == "sessions":
                     if len(self.list_of_sessions) == 0:
@@ -103,6 +103,12 @@ class SessionServer():
             if command != "":
                 self.list_of_commands.append(command.lower())
 
+    def sendSessionList(self, conn):
+        sessions = []
+        for sess in self.list_of_sessions:
+            sessions.append(str(sess))
+        conn.send(pickle.dumps(sessions))
+
     def processClients(self):
         while True:
             # Check each client to see if they want to join a session
@@ -110,12 +116,16 @@ class SessionServer():
 
             # Proccess each request
             for client in read_socks:
-                msg = client.recv(2048).decode()
+                try:
+                    msg = client.recv(2048).decode()
+                except ConnectionResetError:
+                    print("Client disconnected")
+                    self.list_of_clients.remove(client)
 
                 if msg:
                     print("Processing Client Request")
                     if msg == "refresh":
-                        client.send(pickle.dumps(self.list_of_sessions))
+                        self.sendSessionList(client)
                     elif msg.split(" ")[0] == "join":
                         session = self.findSession(msg.split(" ")[1])
                         if session == None or session.state == "Closed":

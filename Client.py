@@ -28,7 +28,11 @@ def mainGameLoop(server):
 def joinSession(server):
     printSessions()
     session = int(input("\nWhich session would you like to connect to? "))
-    valid_sessions = range(1, num_sessions + 1)
+    valid_sessions = []
+    global list_of_sessions
+    for sess in session_list:
+        valid_sessions.append(int(sess.split(" ")[1]))
+
     if session in valid_sessions:
         server.send("join {}".format(session).encode())
         msg = server.recv(1024).decode()
@@ -39,10 +43,15 @@ def joinSession(server):
         elif msg == "success":
             print("Joined session {} successfully!\n".format(session))
             # Waiting for game to start
-            msg = server.recv(2048).decode()
+            msg = server.recv(512).decode()
             while msg != "start":
-                print(msg, end="")
+                if msg == "close":
+                    print("\nSession closed by server...\n")
+                    return
 
+                print(msg, end="")
+                msg = server.recv(512).decode()
+            print()
             # Game has started
             mainGameLoop(server)
 
@@ -91,7 +100,7 @@ def displayMainMenu(server):
 
 def printSessions():
     global session_list
-    print("\tSession List\n-------------------------")
+    print("\n\tSession List\n-------------------------")
     for sess in session_list:
         print(sess)
 
