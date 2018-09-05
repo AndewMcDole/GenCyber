@@ -1,5 +1,6 @@
 import select
 import time
+from _thread import *
 import StoneHuntGame
 
 class Session:
@@ -43,14 +44,15 @@ class Session:
                 print("Session {} closed by server".format(self.ID))
                 return
 
-
-
             self.broadcast('\rWaiting for players... {}/{}'.format(len(self.list_of_clients), self.maxNumClients))
             time.sleep(0.1)
 
         # all clients connected, notify then and start game
         self.broadcast("start")
         self.state = "Running"
+
+        for client in self.list_of_clients:
+            self.game.addClient(client)
 
         self.game.initializeGame()
 
