@@ -112,7 +112,7 @@ def joinSession(server):
         print("Invalid session")
 
 def displayMainMenu(server):
-    userOptions = ["Connect to a session", "Reconnect to a session", "Refresh Session List", "Exit"]
+    userOptions = ["Connect to a session", "Reconnect to a session", "Create a new session", "Refresh Session List", "Exit"]
     print()
     for i in range(len(userOptions)):
         print("{}. {}".format(i + 1, userOptions[i]))
@@ -138,6 +138,17 @@ def displayMainMenu(server):
         # can be closed or refused
 
     elif userChoice == "3":
+        notInt = True
+        while notInt:
+            try:
+                numPlayers = int(input("How many players will be in this new session? "))
+                notInt = False
+            except:
+                print("Please enter a number...")
+
+        server.send("create " + str(numPlayers).encode())
+
+    elif userChoice == "4":
         print("Refreshing Session List...")
         # Send request
         server.send("refresh".encode())
@@ -145,7 +156,7 @@ def displayMainMenu(server):
         num_sessions = len(session_list)
         printSessions()
 
-    elif userChoice == "4":
+    elif userChoice == "5":
         exit()
 
     else:
