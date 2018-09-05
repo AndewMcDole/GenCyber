@@ -31,10 +31,9 @@ class SessionServer():
         ID = self.lifetime_num_sessions
 
         new_session = Session(ID, num_players)
+        start_new_thread(new_session.start, ())
         self.list_of_sessions.append(new_session)
         print("Created new session for {} players".format(num_players))
-        start_new_thread(new_session.start, ())
-
 
     def findSession(self, ID):
         for sess in self.list_of_sessions:
@@ -87,8 +86,8 @@ class SessionServer():
                     print()
                 elif command == "clear":
                     os.system("clear")
-                #elif command == "refresh":
-                    #self.refreshSessions()
+                elif command == "refresh":
+                    self.sendSessionList()
 
 
             elif num_args == 2:
