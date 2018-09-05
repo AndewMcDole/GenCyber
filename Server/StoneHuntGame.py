@@ -206,12 +206,6 @@ class StoneHuntGame:
             self.gameHasStarted = True
 
     def addClient(self, conn):
-        if len(self.listOfClients) >= self.maxNumClients:
-            conn.send("full".encode())
-            return False
-        else:
-            conn.send("available".encode())
-
         validName = False
         while not validName:
             conn.send(pickle.dumps(self.valid_hero_names))
