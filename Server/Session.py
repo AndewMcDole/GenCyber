@@ -35,6 +35,7 @@ class Session:
     def start(self):
         # Sessions begin in the 'open' state
         # Repeatedly send updates to the client until enough players join
+        currentPlayers = 0
         while (len(self.list_of_clients) < self.maxNumClients):
             if self.STOP_ALL:
                 self.state = 'Closed'
@@ -43,11 +44,14 @@ class Session:
                 return
 
             self.broadcast('\rWaiting for players... {}/{}'.format(len(self.list_of_clients), self.maxNumClients))
-            time.sleep(3)
+            time.sleep(0.1)
 
         # all clients connected, notify then and start game
         self.broadcast("start")
         self.state = "Running"
+
+        for client in self.list_of_clients:
+            self.game.addClient(client)
 
         self.game.initializeGame()
 
