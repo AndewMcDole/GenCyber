@@ -52,7 +52,7 @@ class Session:
         for client in self.list_of_clients:
             self.game.sendClientSetup(client)
 
-        while true:
+        while True:
             clients = checkForUserInput()
             for client in clients:
                 msg = client.recv(2048).decode()
