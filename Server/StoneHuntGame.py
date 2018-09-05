@@ -352,3 +352,6 @@ class StoneHuntGame:
         # choose the gatherer
         client = random.choice(self.listOfClients)
         client.setGatherer()
+
+        for client on self.listOfClients:
+            self.sendClientSetup(client)
