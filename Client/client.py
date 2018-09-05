@@ -157,14 +157,6 @@ def displayMainMenu(server):
         print("Invalid Option")
 
 def setupClient(server):
-    # send opening message
-    server.send("connect".encode())
-
-    # check if server is full
-    if server.recv(512).decode() == "full":
-        print("Server is full")
-        exit()
-
     # set up name
     name = ""
     validName = False
