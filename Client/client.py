@@ -139,7 +139,7 @@ def displayMainMenu(server):
 
     elif userChoice == "3":
         numPlayers = input("\nHow many players will be in this new session? ")
-        server.send("create " + str(numPlayers).encode())
+        server.send(("create " + str(numPlayers)).encode())
 
     elif userChoice == "4":
         print("Refreshing Session List...")
