@@ -196,7 +196,7 @@ def setupClient(server):
     # write the session key to a file
     global sessionNum
     file = open("SessionKey.txt", "w+")
-    file.write(str(sessionNum + ";" + sessionKey))
+    file.write(str(sessionNum) + ";" + str(sessionKey))
     file.close()
 
     nameColor, locationColor = customizePrompt()
