@@ -162,7 +162,7 @@ def setupClient(server):
     validName = False
     while not validName:
         userChoice = -99
-        listOfNames = pickle.loads(server.recv(2048))
+        listOfNames = pickle.loads(server.recv(512))
         for i in range(len(listOfNames)):
             print("{}. {}".format(i + 1, listOfNames[i]))
         try:
