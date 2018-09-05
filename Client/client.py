@@ -89,6 +89,7 @@ def joinSession(server):
     if sessionNum in valid_sessions:
         server.send("join {}".format(sessionNum).encode())
         msg = server.recv(1024).decode()
+        print (msg)
         if msg == "reject":
             print("Failed to join session...\n")
         elif msg == "running":

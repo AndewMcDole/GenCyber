@@ -227,6 +227,7 @@ class StoneHuntGame:
         message = sessionKey + ";" + self.SECRET_KEY
         conn.send(message.encode())
         conn.recv(1024).decode()
+        time.sleep(0.01)
 
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
