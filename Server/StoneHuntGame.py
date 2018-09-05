@@ -353,5 +353,5 @@ class StoneHuntGame:
         client = random.choice(self.listOfClients)
         client.setGatherer()
 
-        for client on self.listOfClients:
+        for client in self.listOfClients:
             self.sendClientSetup(client)
