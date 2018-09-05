@@ -138,14 +138,7 @@ def displayMainMenu(server):
         # can be closed or refused
 
     elif userChoice == "3":
-        notInt = True
-        while notInt:
-            try:
-                numPlayers = int(input("How many players will be in this new session? "))
-                notInt = False
-            except:
-                print("Please enter a number...")
-
+        numPlayers = input("\nHow many players will be in this new session? ")
         server.send("create " + str(numPlayers).encode())
 
     elif userChoice == "4":
