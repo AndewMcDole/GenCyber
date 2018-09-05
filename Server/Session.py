@@ -56,6 +56,9 @@ class Session:
 
         self.game.initializeGame()
 
+        for client in self.list_of_clients:
+            self.game.sendClientSetup(client)
+
         while True:
             clients = self.checkForUserInput()
             for client in clients:
