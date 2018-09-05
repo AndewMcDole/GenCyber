@@ -57,8 +57,7 @@ class SessionServer():
         session.close()
         self.list_of_sessions.remove(session)
 
-    def refreshSessions(self):
-        
+    #def refreshSessions(self):
 
 
     def addNewClient(self, conn, ip):
@@ -89,7 +88,7 @@ class SessionServer():
                 elif command == "clear":
                     os.system("clear")
                 elif command == "refresh":
-                    self.refreshSessions()
+                    #self.refreshSessions()
 
             elif num_args == 2:
                 first = command.split(" ")[0]
