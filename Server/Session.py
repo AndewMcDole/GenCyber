@@ -25,7 +25,7 @@ class Session:
         return str(self)
 
     def checkForUserInput(self):
-        read, write, error = select.select(self.lists_of_clients, [], [])
+        read, write, error = select.select(self.list_of_clients, [], [])
         return read
 
     def broadcast(self, msg):
@@ -64,7 +64,7 @@ class Session:
         win = True
 
         # Close the session once the game is over
-        for client in self.listOfClients:
+        for client in self.list_of_clients:
             if win:
                 client.send("Win".encode())
             else:
