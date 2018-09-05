@@ -87,8 +87,9 @@ class SessionServer():
                     print()
                 elif command == "clear":
                     os.system("clear")
-                elif command == "refresh":
+                #elif command == "refresh":
                     #self.refreshSessions()
+
 
             elif num_args == 2:
                 first = command.split(" ")[0]
