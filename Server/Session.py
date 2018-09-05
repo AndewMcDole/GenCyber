@@ -49,6 +49,8 @@ class Session:
         self.broadcast("start")
         self.state = "Running"
 
+        self.game.initializeGame()
+
         for client in self.list_of_clients:
             self.game.sendClientSetup(client)
 
