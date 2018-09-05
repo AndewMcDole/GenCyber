@@ -50,7 +50,7 @@ class Session:
         self.state = "Running"
 
         for client in self.list_of_clients:
-            self.game.sendClientSetup()
+            self.game.sendClientSetup(client)
 
         while true:
             clients = checkForUserInput()

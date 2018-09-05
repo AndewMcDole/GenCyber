@@ -95,6 +95,7 @@ def joinSession(server):
             print("Session in progress, if you are reconnecting, please use the reconnect option at the main menu...\n")
         elif msg == "success":
             print("Joined session {} successfully!\n".format(sessionNum))
+            name, nameColor, location, locationColor, key = setupClient(server)
             # Waiting for game to start
             msg = server.recv(512).decode()
             while msg != "start":
@@ -106,7 +107,7 @@ def joinSession(server):
                 msg = server.recv(512).decode()
             print()
             # Game has started
-            mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
+            mainGameLoop(server, name, nameColor, locationColor, location, key)
 
     else:
         print("Invalid session")
