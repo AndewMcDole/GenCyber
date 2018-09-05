@@ -11,6 +11,8 @@ class Session:
 
         self.state = 'Open'
 
+        self.game = StoneHuntGame.StoneHuntGame(self.maxNumClients)
+
         # This should be used to interupt the execution of this thread
         self.STOP_ALL = False
         self.listening = False
@@ -46,17 +48,17 @@ class Session:
         self.broadcast("start")
         self.state = "Running"
 
-        while True:
-            pass
+        for client in self.listOfClients:
+            self.game.sendClientSetup()
 
-        # Play the game, probably call start or something on the stonehunt game
-        # clients = checkForUserInput()
-        # for client in clients:
-        #     msg = client.recv(2048).decode()
-        #     if msg:
-        #         self.game.processCommand()
-        #     else:
-        #         self.list_of_clients.remove(client)
+        while true:
+            clients = checkForUserInput()
+            for client in clients:
+                msg = client.recv(2048).decode()
+                if msg:
+                    self.game.processCommand()
+                else:
+                    self.list_of_clients.remove(client)
 
         win = True
 
