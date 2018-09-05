@@ -58,6 +58,7 @@ class SessionServer():
         self.list_of_sessions.remove(session)
 
     def refreshSessions(self):
+        
 
 
     def addNewClient(self, conn, ip):
