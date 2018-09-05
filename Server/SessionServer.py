@@ -56,9 +56,6 @@ class SessionServer():
         session.close()
         self.list_of_sessions.remove(session)
 
-    #def refreshSessions(self):
-
-
     def addNewClient(self, conn, ip):
         # Send initial session list
         self.sendSessionList(conn)
@@ -72,7 +69,7 @@ class SessionServer():
 
             if num_args == 1:
                 if command == "help" or command == "?":
-                    list_of_commands = ["help", "clients", "sessions", "refresh", "create [num_players]"]
+                    list_of_commands = ["help", "clients", "sessions", "create [num_players]"]
                     print(list_of_commands)
                     print()
                 elif command == "clients":
@@ -86,8 +83,6 @@ class SessionServer():
                     print()
                 elif command == "clear":
                     os.system("clear")
-                elif command == "refresh":
-                    self.sendSessionList()
 
 
             elif num_args == 2:

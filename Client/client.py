@@ -106,7 +106,7 @@ def joinSession(server):
                 msg = server.recv(512).decode()
             print()
             # Game has started
-            mainGameLoop(server)
+            mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY)
 
     else:
         print("Invalid session")
