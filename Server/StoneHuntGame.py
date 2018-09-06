@@ -199,6 +199,7 @@ class StoneHuntGame:
         # check to see if enough clients have connected to start the game
         if len(self.listOfClients) >= int(self.maxNumClients):
             self.initializeGame()
+            print("MADE IT HERE")
 
         self.numClientsReady += 1
         if self.numClientsReady == self.maxNumClients:

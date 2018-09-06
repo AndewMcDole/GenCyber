@@ -78,7 +78,7 @@ class Session:
                 return
 
             self.broadcast('\rWaiting for players... {}/{}'.format(len(self.list_of_clients), self.maxNumClients))
-            time.sleep(3)
+            time.sleep(1)
 
         # all clients connected, notify then and start game
         print("Session {} has started...".format(self.ID))
