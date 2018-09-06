@@ -131,14 +131,15 @@ class SessionServer():
                         if msg == "refresh":
                             self.sendSessionList(client)
                         elif msg.split(" ")[0] == "join":
-                            session = self.findSession(msg.split(" ")[1])
+                            sessionID = msg.split(" ")[1]
+                            session = self.findSession(sessionID)
                             if session == None or session.state == "Closed":
                                 client.send("reject".encode())
                             elif session.state == "Running":
                                 client.send("running".encode())
                             else:
                                 client.send("success".encode())
-                                if session.addClient(client):
+                                if session.addClient(client, sessionID):
                                     self.list_of_clients.remove(client)
 
 
