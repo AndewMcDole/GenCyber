@@ -134,7 +134,7 @@ class SessionServer():
                         elif session.state == "Running":
                             client.send("running".encode())
                         else:
-                            session.list_of_clients.append(client)
+                            session.addClient(client)
                             client.send("success".encode())
 
                 else:
