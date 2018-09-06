@@ -1,7 +1,7 @@
 import select
 import time
 
-import StoneHuntGameGame
+import StoneHuntGame
 
 class Session:
 
