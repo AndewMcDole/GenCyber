@@ -177,14 +177,15 @@ def setupClient(server):
             print("Waiting on session key...")
             message = server.recv(1024).decode()
 
-    # receive sessionKey and secret key
-    SECRET_KEY = message.split(";")[1]
-    sessionKey = message.split(";")[0]
+    # receive sessionID sessionKey and secret key
+    global sessionNum
+    sessionNum = message.split(";")[0]
+    sessionKey = message.split(";")[1]
+    SECRET_KEY = message.split(";")[2]
 
     server.send("ready".encode())
 
     # write the session key to a file
-    global sessionNum
     file = open("SessionKey.txt", "w+")
     file.write(str(sessionNum) + ";" + str(sessionKey))
     file.close()

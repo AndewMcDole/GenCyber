@@ -205,7 +205,7 @@ class StoneHuntGame:
             print("All players ready, begin!")
             self.gameHasStarted = True
 
-    def addClient(self, conn):
+    def addClient(self, conn, sessionID):
         validName = False
         while not validName:
             conn.send(pickle.dumps(self.valid_hero_names))
@@ -224,7 +224,7 @@ class StoneHuntGame:
                 conn.send("False".encode())
 
         sessionKey = self.generateSessionKey(4)
-        message = sessionKey + ";" + self.SECRET_KEY
+        message = str(sessionID) + ";" + str(sessionKey) + ";" + str(self.SECRET_KEY)
         conn.send(message.encode())
         conn.recv(1024).decode()
         time.sleep(0.01)
