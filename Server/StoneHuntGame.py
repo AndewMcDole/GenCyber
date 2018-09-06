@@ -200,6 +200,7 @@ class StoneHuntGame:
         if len(self.listOfClients) >= int(self.maxNumClients):
             self.initializeGame()
             print("MADE IT HERE")
+            print(self.maxNumClients)
 
         self.numClientsReady += 1
         if self.numClientsReady == self.maxNumClients:
