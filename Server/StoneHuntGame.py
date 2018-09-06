@@ -203,6 +203,7 @@ class StoneHuntGame:
             print(self.maxNumClients)
 
         self.numClientsReady += 1
+        print(self.numClientsReady)
         if self.numClientsReady == self.maxNumClients:
             print("All players ready, begin!")
             self.gameHasStarted = True
