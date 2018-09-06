@@ -139,7 +139,7 @@ class SessionServer():
                                 client.send("running".encode())
                             else:
                                 client.send("success".encode())
-                                if session.addClient(client, sessionID):
+                                if session.addClient(client):
                                     self.list_of_clients.remove(client)
 
 
