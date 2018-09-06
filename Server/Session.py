@@ -1,7 +1,7 @@
 import select
 import time
 
-import Stonehunt
+import StoneHuntGameGame
 
 class Session:
 
@@ -17,13 +17,13 @@ class Session:
         self.STOP_ALL = False
         self.listening = False
 
-        # Stonehunt
-        self.game = Stonehunt.StoneHuntGame(maxNumClients)
+        # StoneHuntGame
+        self.game = StoneHuntGame.StoneHuntGame(maxNumClients)
 
         # Time tracking
         self.startTime = None
         self.currTime = None
-        self.timer = 600 # 15 minutes
+        self.timer = 30 # 15 minutes
 
         # game over and winner
         self.gameOver = False
@@ -38,6 +38,8 @@ class Session:
     def addClient(self, conn):
         if self.game.addClient(conn, self.ID):
             self.list_of_clients.append(conn)
+            return True
+        return False
 
     def checkForUserInput(self):
         read, write, error = select.select(self.lists_of_clients, [], [])
@@ -58,9 +60,13 @@ class Session:
         for client in read_socks:
             msg = client.recv(2048).decode()
             if msg:
-                self.game.process(conn, message)
+                self.game.process(client, msg)
             else:
                 self.list_of_clients.remove(client)
+
+    def sendClientSetups(self):
+        for client in self.list_of_clients:
+            self.game.sendClientSetup(client)
 
     def start(self):
         # Sessions begin in the 'open' state
@@ -71,7 +77,7 @@ class Session:
                 print("Session {} closed by server".format(self.ID))
                 return
 
-            self.broadcast('Waiting for players... {}/{}\r'.format(len(self.list_of_clients), self.maxNumClients))
+            self.broadcast('\rWaiting for players... {}/{}'.format(len(self.list_of_clients), self.maxNumClients))
             time.sleep(3)
 
         # all clients connected, notify then and start game
@@ -81,11 +87,13 @@ class Session:
         self.startTime = time.time()
         self.currTime = self.startTime
 
+        self.sendClientSetups()
+
         while not self.gameOver:
             self.processClients()
             # Check if time limit is over
             self.currTime = time.time()
-            # print("\rCurr time: {}  Elapsed Time: {}".format(self.currTime, self.currTime - self.startTime), end="")
+            print("\rCurr time: {}  Elapsed Time: {}".format(self.currTime, self.currTime - self.startTime), end="")
             if self.currTime - self.startTime > self.timer:
                 self.gameOver = True
                 self.heroWin = False

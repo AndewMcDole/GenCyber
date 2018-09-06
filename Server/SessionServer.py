@@ -69,7 +69,7 @@ class SessionServer():
 
             if num_args == 1:
                 if command == "help" or command == "?":
-                    list_of_commands = ["help", "clients", "sessions", "create [num_players]"]
+                    list_of_commands = ["help", "clients", "sessions", "create [num_players], close [session_id]"]
                     print(list_of_commands)
                     print()
                 elif command == "clients":
@@ -83,7 +83,6 @@ class SessionServer():
                     print()
                 elif command == "clear":
                     os.system("clear")
-
 
             elif num_args == 2:
                 first = command.split(" ")[0]
@@ -110,40 +109,53 @@ class SessionServer():
             sessions.append(str(sess))
         conn.send(pickle.dumps(sessions))
 
+    def closeSessions(self):
+        for s in self.list_of_sessions:
+            if s.state == "Closed":
+                self.list_of_clients += s.list_of_clients
+                self.list_of_sessions.remove(s)
+
     def processClients(self):
         while True:
             # Check each client to see if they want to join a session
-            read_socks, write_socks, error_socks = select.select(self.list_of_clients, [], [], 2)
+            # This timeout time affects how 'responsive' the server feels
+            read_socks, write_socks, error_socks = select.select(self.list_of_clients, [], [], 0.1)
 
             # Proccess each request
             for client in read_socks:
                 try:
                     msg = client.recv(2048).decode()
-                except ConnectionResetError:
-                    print("Client disconnected")
-                    self.list_of_clients.remove(client)
 
-                if msg:
-                    print("Processing Client Request")
-                    if msg == "refresh":
-                        self.sendSessionList(client)
-                    elif msg.split(" ")[0] == "join":
-                        session = self.findSession(msg.split(" ")[1])
-                        if session == None or session.state == "Closed":
-                            client.send("reject".encode())
-                        elif session.state == "Running":
-                            client.send("running".encode())
-                        else:
-                            session.addClient(client)
-                            client.send("success".encode())
+                    if msg:
+                        print("Processing Client Request")
+                        if msg == "refresh":
+                            self.sendSessionList(client)
+                        elif msg.split(" ")[0] == "join":
+                            session = self.findSession(msg.split(" ")[1])
+                            if session == None or session.state == "Closed":
+                                client.send("reject".encode())
+                            elif session.state == "Running":
+                                client.send("running".encode())
+                            else:
+                                client.send("success".encode())
+                                if session.addClient(client):
+                                    self.list_of_clients.remove(client)
 
-                else:
+
+                    else:
+                        print("Client disconnected")
+                        self.list_of_clients.remove(client)
+
+                except BrokenPipeError:
                     print("Client disconnected")
                     self.list_of_clients.remove(client)
 
 
             # Proccess any server commands
             self.proccessCommands()
+
+            # Clean up closed sessions
+            self.closeSessions()
 
 """""""""""""""""""""""""""""""""""""""""""""
                     Main

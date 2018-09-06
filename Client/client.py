@@ -97,17 +97,6 @@ def joinSession(server):
         elif msg == "success":
             print("Joined session {} successfully!\n".format(sessionNum))
             name, nameColor, location, locationColor, key = setupClient(server)
-
-            # Waiting for game to start
-            msg = server.recv(512).decode()
-            while msg != "start":
-                if msg == "close":
-                    print("\nSession closed by server...\n")
-                    return
-
-                print(msg, end="")
-                msg = server.recv(512).decode()
-            print()
             # Game has started
             mainGameLoop(server, name, nameColor, locationColor, location, key)
 
@@ -205,7 +194,16 @@ def setupClient(server):
     # Tell the server that we are ready and waiting for the game to start
     server.send("ready".encode())
 
-    print("Waiting for game to start...")
+    # Waiting for game to start
+    msg = server.recv(512).decode()
+    while msg != "start":
+        if msg == "close":
+            print("\nSession closed by server...\n")
+            return
+
+        print(msg, end="")
+        msg = server.recv(512).decode()
+    print()
     setup = server.recv(2048).decode().split(";")
 
     print()
@@ -216,7 +214,7 @@ def setupClient(server):
     if len(setup) >= 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location, SECRET_KEY
+    return name, nameColor, location, locationColor, SECRET_KEY
 
 def reconnect(server):
     server.send("reconnect".encode())
@@ -278,6 +276,14 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                 message = ""
                 try:
                     message = receiveMessage(server, lowPriorityMessageQueue, MessageCode.LOW_PRIORITY)
+                    if message == "END":
+                        win = server.recv(1024).decode()
+                        if win == "win":
+                            print ("WINNER\n\n")
+                        else:
+                            print ("LOSER\n\n")
+                        return
+
                     if message != "":
                         commandExecuted = True
 
@@ -436,6 +442,8 @@ def receiveMessage(server, lowPriorityMessageQueue, targetMessageType):
         messages = bulkMessage.split("FULL_STOP")
 
         for message in messages[:-1]:
+            if message == "END":
+                return message
             messagePieces = message.split(";")
             messageType = message.split(";")[0]
             messageType = MessageCode(messageType)
