@@ -104,6 +104,7 @@ def joinSession(server):
         print("Invalid session")
 
 def rejoinSession(server, sessionID):
+    print("RejoinSession")
     server.send("join {}".format(sessionID).encode())
     msg = server.recv(1024).decode()
     print (msg)
@@ -233,7 +234,7 @@ def setupClient(server):
     return name, nameColor, location, locationColor, SECRET_KEY
 
 def reconnect(server):
-    server.send("reconnect".encode())
+    print("reconnect")
     sessionID = 0
     sessionKey = 0
     if os.path.isfile("SessionKey.txt"):
@@ -267,7 +268,7 @@ def reconnect(server):
     print("Stone(s): " + stones)
     location = setup[1]
     print("Location: " + location)
-    if len(setup) > 3:
+    if len(setup) >= 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
     return id
