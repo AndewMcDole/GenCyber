@@ -171,7 +171,14 @@ class SessionServer():
                                 client.send("success".encode())
                                 if session.addClient(client):
                                     self.list_of_clients.remove(client)
-
+                        elif msg.split(" ")[0] == "rejoin":
+                            session = self.findSession(msg.split(" ")[1])
+                            if session == None or session.state == "Closed":
+                                client.send("reject".encode())
+                            elif session.state == "Running":
+                                client.send("success".encode())
+                                if session.addClient(client):
+                                    self.list_of_clients.remove(client)
 
                     else:
                         print("Client disconnected")
