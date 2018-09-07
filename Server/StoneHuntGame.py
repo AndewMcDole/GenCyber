@@ -11,9 +11,8 @@ Client Object
 
 class Client():
 
-    def __init__(self, connection, sessionID, sessionKey, name):
+    def __init__(self, connection, sessionKey, name):
         self.connection = connection
-        self.sessionID = sessionID
         self.sessionKey = sessionKey
         self.name = name
         self.stones = []
@@ -52,9 +51,6 @@ class Client():
 
     def setGatherer(self):
         self.isGatherer = True
-
-    def getSessionID(self):
-        return self.sessionID
 
     def getSessionKey(self):
         return self.sessionKey
@@ -195,21 +191,27 @@ class StoneHuntGame:
     Connections and game setup
     """
 
-    def clientReady(self, conn, sessionID, sessionKey, name):
+    def clientReady(self, conn, sessionKey, name):
         # create a new client object with this information
-        client = Client(conn, sessionID, sessionKey, name)
+        client = Client(conn, sessionKey, name)
         self.listOfClients.append(client)
 
         # check to see if enough clients have connected to start the game
-        if len(self.listOfClients) >= int(self.maxNumClients):
+        if len(self.listOfClients) >= self.maxNumClients:
             self.initializeGame()
 
         self.numClientsReady += 1
-        if int(self.numClientsReady) == int(self.maxNumClients):
+        if self.numClientsReady == self.maxNumClients:
             print("All players ready, begin!")
             self.gameHasStarted = True
 
-    def addClient(self, conn, sessionID):
+    def addClient(self, conn):
+        if len(self.listOfClients) >= self.maxNumClients:
+            conn.send("full".encode())
+            return False
+        else:
+            conn.send("available".encode())
+
         validName = False
         while not validName:
             conn.send(pickle.dumps(self.valid_hero_names))
@@ -228,15 +230,14 @@ class StoneHuntGame:
                 conn.send("False".encode())
 
         sessionKey = self.generateSessionKey(4)
-        message = str(sessionID) + ";" + str(sessionKey) + ";" + str(self.SECRET_KEY)
+        message = sessionKey + ";" + self.SECRET_KEY
         conn.send(message.encode())
         conn.recv(1024).decode()
-        time.sleep(0.01)
 
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
         if readyMessage == "ready":
-            self.clientReady(conn, sessionID, sessionKey, name)
+            self.clientReady(conn, sessionKey, name)
             return True
         return False
 
@@ -244,14 +245,12 @@ class StoneHuntGame:
         # The message does no matter, we are telling the client the server is ready to receive
         conn.send("Ready to receive".encode())
         # receive the session key
-        msg = conn.recv(1024).decode()
-        id = msg.split(";")[0]
-        sk = msg.split(";")[1]
+        sk = conn.recv(1024).decode()
         # print("Received session key: " + sk)
 
         # check all of the clients to see if they have a matching key
         for client in self.listOfClients:
-            if client.getSessionID() == id and client.getSessionKey() == sk:
+            if client.getSessionKey() == sk:
                 conn.send("valid".encode())
                 # overwrite connection and return name to client
                 name = client.reconnectClient(conn)

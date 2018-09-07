@@ -1,7 +1,7 @@
 import select
 import time
 
-import StoneHuntGame
+import Stonehunt
 
 class Session:
 
@@ -17,17 +17,20 @@ class Session:
         self.STOP_ALL = False
         self.listening = False
 
-        # StoneHuntGame
-        self.game = StoneHuntGame.StoneHuntGame(maxNumClients)
+        # Stonehunt
+        self.game = Stonehunt.StoneHuntGame(maxNumClients)
 
         # Time tracking
         self.startTime = None
         self.currTime = None
-        self.timer = 30 # 15 minutes
+        self.timer = 6
 
         # game over and winner
         self.gameOver = False
         self.heroWin = False
+
+        # If listen is on, then let the game print out stuff
+        self.listen = False
 
     def __str__(self):
         return "Session {}  {}/{}  {}".format( self.ID, len(self.list_of_clients), self.maxNumClients, self.state)
@@ -49,7 +52,8 @@ class Session:
         for client in self.list_of_clients:
             try:
                 client.send(msg.encode())
-            except BrokenPipeError:
+            except ConnectionResetError | BrokenPipeError:
+                print("Client disconnected in session {}".format(self.ID))
                 self.list_of_clients.remove(client)
 
     def processClients(self):
@@ -78,7 +82,7 @@ class Session:
                 return
 
             self.broadcast('\rWaiting for players... {}/{}'.format(len(self.list_of_clients), self.maxNumClients))
-            time.sleep(1)
+            time.sleep(3)
 
         # all clients connected, notify then and start game
         print("Session {} has started...".format(self.ID))
@@ -93,22 +97,30 @@ class Session:
             self.processClients()
             # Check if time limit is over
             self.currTime = time.time()
-            print("\rCurr time: {}  Elapsed Time: {}".format(self.currTime, self.currTime - self.startTime), end="")
+            print("Session {} elapsed Time: {}".format(self.ID, self.currTime - self.startTime))
             if self.currTime - self.startTime > self.timer:
                 self.gameOver = True
                 self.heroWin = False
 
-        # Game is over
-        self.state = 'Closed'
-        time.sleep(2)
-        self.broadcast("game over")
-        time.sleep(2)
+            if self.listen:
+                self.game.listen = True
+            elif not self.listen:
+                self.game.listen = False
+
+        self.broadcast("LOW;END;FULL_STOP")
+        time.sleep(0.1)
         if self.heroWin:
             self.broadcast("win")
+            print("Broadcasting Hero Win")
         else:
             self.broadcast("loss")
+            print("Broadcasting Hero Loss")
+
+        time.sleep(0.5) # Give time for clients to register that the game has ended
 
         print("Session {} ending...".format(self.ID))
+        # Game is over
+        self.state = 'Closed'
 
     def close(self):
         self.STOP_ALL = True

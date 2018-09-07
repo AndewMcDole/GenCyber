@@ -22,6 +22,8 @@ class SessionServer():
         self.lifetime_num_sessions = 0
         self.lifetime_num_clients = 0
 
+        self.listen_sess = None
+
     def createNewSession(self, num_players):
         if num_players == None or num_players == "" or int(num_players) < 1:
             print("Failed to create session...")
@@ -56,6 +58,9 @@ class SessionServer():
         session.close()
         self.list_of_sessions.remove(session)
 
+        if session == self.listen_sess:
+            self.listen_sess = None
+
     def addNewClient(self, conn, ip):
         # Send initial session list
         self.sendSessionList(conn)
@@ -83,6 +88,9 @@ class SessionServer():
                     print()
                 elif command == "clear":
                     os.system("clear")
+                elif command == "stop":
+                    self.listen_sess.listen = False
+                    self.listen_sess = None
 
             elif num_args == 2:
                 first = command.split(" ")[0]
@@ -93,6 +101,27 @@ class SessionServer():
                 elif first == "close":
                     self.closeSession(second)
                     print()
+                elif first == "listen":
+                    s = self.findSession(second)
+                    if s != None:
+                        self.listen_sess = s
+                        s.listen = True
+                        print("Now listening on session ", second)
+
+            elif num_args == 3:
+                first = command.split(" ")[0]
+                second = command.split(" ")[1]
+                third = command.split(" ")[2]
+                if first == "create":
+                    for i in range(int(third)):
+                        self.createNewSession(second)
+                    print()
+                # if first == "close":
+                #     for i in range(int(second), int(third) + 1):
+                #         print(i)
+                #         sess = self.findSession(i)
+                #         if sess != None:
+                #             self.closeSession(sess)
 
             self.list_of_commands.remove(command)
 
@@ -112,8 +141,10 @@ class SessionServer():
     def closeSessions(self):
         for s in self.list_of_sessions:
             if s.state == "Closed":
-                self.list_of_clients += s.list_of_clients
+                # self.list_of_clients += s.list_of_clients
                 self.list_of_sessions.remove(s)
+                if s == self.listen_sess:
+                    self.listen_sess = None
 
     def processClients(self):
         while True:
@@ -131,8 +162,7 @@ class SessionServer():
                         if msg == "refresh":
                             self.sendSessionList(client)
                         elif msg.split(" ")[0] == "join":
-                            sessionID = msg.split(" ")[1]
-                            session = self.findSession(sessionID)
+                            session = self.findSession(msg.split(" ")[1])
                             if session == None or session.state == "Closed":
                                 client.send("reject".encode())
                             elif session.state == "Running":
@@ -147,7 +177,7 @@ class SessionServer():
                         print("Client disconnected")
                         self.list_of_clients.remove(client)
 
-                except BrokenPipeError:
+                except BrokenPipeError | ConnectionResetError:
                     print("Client disconnected")
                     self.list_of_clients.remove(client)
 
