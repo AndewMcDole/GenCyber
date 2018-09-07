@@ -112,6 +112,7 @@ def rejoinSession(server):
             msg = file.readline()
             sessoinID = msg.split(";")[0]
             sessionKey = msg.split(";")[1]
+            print(str(sessionID))
     server.send("join {}".format(sessionID).encode())
     msg = server.recv(1024).decode()
     print (msg)
