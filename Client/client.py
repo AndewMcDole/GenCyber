@@ -116,6 +116,25 @@ def rejoinSession(server):
             sessionKey = msg.split(";")[1]
             print(str(sessionID))
     server.send("rejoin {} {}".format(sessionID, sessionKey).encode())
+
+    # receive confirmation from server
+    if server.recv(1024).decode() == "invalid":
+        print("Invalid session key")
+        exit()
+
+    name = server.recv(1024).decode()
+    nameColor, locationColor = customizePrompt()
+
+    server.send("setup".encode())
+    setup = server.recv(2048).decode().split(";")
+    print()
+    stones = setup[0]
+    print("Stone(s): " + stones)
+    location = setup[1]
+    print("Location: " + location)
+    if len(setup) >= 3:
+        print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
+
     msg = server.recv(1024).decode()
     print("EXPECTING success, running, or reject -> " + msg)
     if msg == "reject":
