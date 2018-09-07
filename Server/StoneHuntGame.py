@@ -210,7 +210,7 @@ class StoneHuntGame:
             self.gameHasStarted = True
 
     def addClient(self, conn, sessionID):
-        if len(self.listOfClients) >= self.maxNumClients:
+        if len(self.listOfClients) >= int(self.maxNumClients):
             conn.send("full".encode())
             return False
         else:
