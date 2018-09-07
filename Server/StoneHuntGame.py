@@ -13,7 +13,7 @@ class Client():
 
     def __init__(self, connection, sessionID, sessionKey, name):
         self.connection = connection
-        self.sessionID
+        self.sessionID = sessionID
         self.sessionKey = sessionKey
         self.name = name
         self.stones = []
