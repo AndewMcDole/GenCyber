@@ -159,9 +159,9 @@ class SessionServer():
 
                     if msg:
                         print("Processing Client Request")
-                        if msg == "refresh":
+                        first = msg.split(" ")[0]
+                        if first == "refresh":
                             self.sendSessionList(client)
-                            first = msg.split(" ")[0]
                         elif first == "join":
                             session = self.findSession(msg.split(" ")[1])
                             if session == None or session.state == "Closed":
