@@ -23,7 +23,7 @@ class Session:
         # Time tracking
         self.startTime = None
         self.currTime = None
-        self.timer = 6
+        self.timer = 15
 
         # game over and winner
         self.gameOver = False
