@@ -175,12 +175,12 @@ class SessionServer():
                         elif first == "rejoin":
                             session = self.findSession(msg.split(" ")[1])
                             if session == None or session.state == "Closed":
-                                client.send("reject".encode())
+                                #client.send("reject".encode())
                             elif session.state == "Running":
                                 #client.send("Attempting to reconnect".encode())
                                 key = msg.split(" ")[2]
                                 if session.reconnectClient(client, key):
-                                    client.send("success".encode())
+                                    #client.send("success".encode())
                                     self.list_of_clients.remove(client)
 
                     else:

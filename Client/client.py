@@ -122,7 +122,12 @@ def rejoinSession(server):
         print("Invalid session key")
         exit()
 
-    name = server.recv(1024).decode()
+    clientSetup = server.recv(1024).decode()
+    name = clientSetup.split(";")[0]
+    stones = clientSetup.split(";")[1]
+    location = clientSetup.split(";")[2]
+    key = clientSetup.split(";")[3]
+    gatherer = clientSetup.split(";")[4]
 
     msg = server.recv(1024).decode()
     print("EXPECTING success, running, or reject -> " + msg)
@@ -132,8 +137,8 @@ def rejoinSession(server):
         print("Session in progress, if you are reconnecting, please use the reconnect option at the main menu...\n")
     elif msg == "success":
         print("Joined session {} successfully!\n".format(sessionID))
-        name, nameColor, location, locationColor, key = setupClient(server, True)
         # Game has started
+        nameColor, locationColor = customizePrompt()
         mainGameLoop(server, name, nameColor, locationColor, location, key)
 
 def displayMainMenu(server):

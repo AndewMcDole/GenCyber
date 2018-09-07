@@ -245,7 +245,12 @@ class StoneHuntGame:
                 conn.send("valid".encode())
                 # overwrite connection and return name to client
                 name = client.reconnectClient(conn)
-                conn.send(name.encode())
+                time.sleep(0.1)
+                name, stones, location, key, gatherer = client.getSetup()
+                msg = str(name) + ";" + str(stones) + ";" + str(location) + ";" + str(key) + ";" + str(gatherer)
+                conn.send(msg.encode())
+                time.sleep(0.1)
+                conn.send("success".encode())
                 return True
 
         conn.send("invalid".encode())
