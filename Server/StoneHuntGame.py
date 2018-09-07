@@ -195,9 +195,9 @@ class StoneHuntGame:
     Connections and game setup
     """
 
-    def clientReady(self, conn, sessionKey, name):
+    def clientReady(self, conn, sessionID, sessionKey, name):
         # create a new client object with this information
-        client = Client(conn, sessionKey, name)
+        client = Client(conn, sessionID, sessionKey, name)
         self.listOfClients.append(client)
 
         # check to see if enough clients have connected to start the game
@@ -235,7 +235,7 @@ class StoneHuntGame:
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
         if readyMessage == "ready":
-            self.clientReady(conn, sessionKey, name)
+            self.clientReady(conn, sessionID, sessionKey, name)
             return True
         return False
 
