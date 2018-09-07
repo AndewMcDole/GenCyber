@@ -127,7 +127,7 @@ def displayMainMenu(server):
 
     elif userChoice == "2":
         print("Reconnecting to previous session")
-        # can be closed or refused
+        reconnect(server)
 
     elif userChoice == "3":
         numPlayers = input("\nHow many players will be in this new session? ")
