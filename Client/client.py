@@ -108,11 +108,12 @@ def rejoinSession(server):
     sessionID = 0
     sessionKey = 0
     if os.path.isfile("SessionKey.txt"):
+        print("file here")
         with open("SessionKey.txt", "r") as file:
             msg = file.readline()
+            print("file msg: " + msg)
             sessoinID = msg.split(";")[0]
             sessionKey = msg.split(";")[1]
-            print(str(sessionID))
     server.send("join {}".format(sessionID).encode())
     msg = server.recv(1024).decode()
     print (msg)
