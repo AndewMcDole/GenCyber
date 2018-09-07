@@ -47,6 +47,8 @@ class stdinThread(threading.Thread):
                     commandQueue.append("clear")
                 elif (command.lower() == "winnow"):
                     commandQueue.append("winnow")
+                elif (command.lower() == "return"):
+                    return
                 else:
                     commandQueue.append("unknown")
 
@@ -320,6 +322,7 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                             print ("WINNER\n\n")
                         else:
                             print ("LOSER\n\n")
+                        os.console("return")
                         return
 
                     if message != "":
