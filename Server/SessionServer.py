@@ -161,7 +161,8 @@ class SessionServer():
                         print("Processing Client Request")
                         if msg == "refresh":
                             self.sendSessionList(client)
-                        elif msg.split(" ")[0] == "join":
+                            first = msg.split(" ")[0]
+                        elif first == "join":
                             session = self.findSession(msg.split(" ")[1])
                             if session == None or session.state == "Closed":
                                 client.send("reject".encode())
@@ -171,7 +172,7 @@ class SessionServer():
                                 client.send("success".encode())
                                 if session.addClient(client):
                                     self.list_of_clients.remove(client)
-                        elif msg.split(" ")[0] == "rejoin":
+                        elif first == "rejoin":
                             print("MADE IN TO EJOPIN")
                             session = self.findSession(msg.split(" ")[1])
                             if session == None or session.state == "Closed":
