@@ -247,7 +247,7 @@ class StoneHuntGame:
                 name = client.reconnectClient(conn)
                 conn.send(name.encode())
                 time.sleep(0.1)
-                conn.send(str(id) + ";" + str(self.SECRET_KEY)).encode()
+                conn.send(str(id) + ";" + str(self.SECRET_KEY).encode())
                 return True
 
         conn.send("invalid".encode())
