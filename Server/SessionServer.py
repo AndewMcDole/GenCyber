@@ -176,8 +176,10 @@ class SessionServer():
                             if session == None or session.state == "Closed":
                                 client.send("reject".encode())
                             elif session.state == "Running":
-                                client.send("success".encode())
-                                if session.addClient(client):
+                                #client.send("Attempting to reconnect".encode())
+                                key = msg.split(" ")[2]
+                                if session.reconnectClient(client, key):
+                                    client.send("Reconnect successful").encode()
                                     self.list_of_clients.remove(client)
 
                     else:

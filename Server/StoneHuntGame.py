@@ -230,7 +230,6 @@ class StoneHuntGame:
         sessionKey = self.generateSessionKey(4)
         message = str(sessionID) + ";" + str(sessionKey) + ";" + self.SECRET_KEY
         conn.send(message.encode())
-        conn.recv(1024).decode()
 
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
@@ -239,18 +238,10 @@ class StoneHuntGame:
             return True
         return False
 
-    def reconnect(self, conn):
-        # The message does no matter, we are telling the client the server is ready to receive
-        conn.send("Ready to receive".encode())
-        # receive the session key
-        msg = conn.recv(1024).decode()
-        id = msg.split(";")[0]
-        sk = msg.split(";")[1]
-        # print("Received session key: " + sk)
-
+    def reconnect(self, conn, key):
         # check all of the clients to see if they have a matching key
         for client in self.listOfClients:
-            if client.getSessionID() == id and client.getSessionKey() == sk:
+            if client.getSessionKey() == key:
                 conn.send("valid".encode())
                 # overwrite connection and return name to client
                 name = client.reconnectClient(conn)

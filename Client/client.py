@@ -96,7 +96,7 @@ def joinSession(server):
             print("Session in progress, if you are reconnecting, please use the reconnect option at the main menu...\n")
         elif msg == "success":
             print("Joined session {} successfully!\n".format(sessionNum))
-            name, nameColor, location, locationColor, key = setupClient(server)
+            name, nameColor, location, locationColor, key = setupClient(server, False)
             # Game has started
             mainGameLoop(server, name, nameColor, locationColor, location, key)
 
@@ -124,7 +124,7 @@ def rejoinSession(server):
         print("Session in progress, if you are reconnecting, please use the reconnect option at the main menu...\n")
     elif msg == "success":
         print("Joined session {} successfully!\n".format(sessionID))
-        name, nameColor, location, locationColor, key = setupClient(server)
+        name, nameColor, location, locationColor, key = setupClient(server, True)
         # Game has started
         mainGameLoop(server, name, nameColor, locationColor, location, key)
 
@@ -152,7 +152,6 @@ def displayMainMenu(server):
 
     elif userChoice == "2":
         print("Reconnecting to previous session")
-        #id = reconnect(server)
         rejoinSession(server)
 
     elif userChoice == "3":
@@ -173,7 +172,7 @@ def displayMainMenu(server):
     else:
         print("Invalid Option")
 
-def setupClient(server):
+def setupClient(server, reconnecting):
     # set up name
     name = ""
     validName = False
@@ -209,8 +208,6 @@ def setupClient(server):
     sessionKey = message.split(";")[1]
     SECRET_KEY = message.split(";")[2]
 
-    server.send("ready".encode())
-
     # write the session key to a file
     file = open("SessionKey.txt", "w+")
     file.write(str(sessionNum) + ";" + str(sessionKey))
@@ -222,17 +219,18 @@ def setupClient(server):
     server.send("ready".encode())
 
     # Waiting for game to start
-    msg = server.recv(512).decode()
-    while msg != "start":
-        if msg == "close":
-            print("\nSession closed by server...\n")
-            return
-
-        print(msg, end="")
+    if not reconnecting:
         msg = server.recv(512).decode()
-    print()
-    setup = server.recv(2048).decode().split(";")
+        while msg != "start":
+            if msg == "close":
+                print("\nSession closed by server...\n")
+                return
 
+            print(msg, end="")
+            msg = server.recv(512).decode()
+        print()
+
+    setup = server.recv(2048).decode().split(";")
     print()
     stones = setup[0]
     print("Stone(s): " + stones)

@@ -44,6 +44,13 @@ class Session:
             return True
         return False
 
+    def reconnectClient(self, conn, key):
+        if self.game.reconnect(conn, key):
+            self.list_of_clients.append(conn)
+            return True
+        return False
+
+
     def checkForUserInput(self):
         read, write, error = select.select(self.lists_of_clients, [], [])
         return read
