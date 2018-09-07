@@ -262,11 +262,6 @@ def reconnect(server):
         exit()
 
     name = server.recv(1024).decode()
-    # receive SECRET KEY
-    msg = server.recv(1024).decode()
-    id = msg.split(";")[0]
-    sk = msg.split(";")[1]
-
     nameColor, locationColor = customizePrompt()
 
     server.send("setup".encode())
@@ -278,8 +273,6 @@ def reconnect(server):
     print("Location: " + location)
     if len(setup) >= 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
-
-    return id
 
 def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
     lowPriorityMessageQueue = []
