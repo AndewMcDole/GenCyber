@@ -103,8 +103,15 @@ def joinSession(server):
     else:
         print("Invalid session")
 
-def rejoinSession(server, sessionID):
+def rejoinSession(server):
     print("RejoinSession")
+    sessionID = 0
+    sessionKey = 0
+    if os.path.isfile("SessionKey.txt"):
+        with open("SessionKey.txt", "r") as file:
+            msg = file.readline()
+            sessoinID = msg.split(";")[0]
+            sessionKey = msg.split(";")[1]
     server.send("join {}".format(sessionID).encode())
     msg = server.recv(1024).decode()
     print (msg)
@@ -142,8 +149,8 @@ def displayMainMenu(server):
 
     elif userChoice == "2":
         print("Reconnecting to previous session")
-        id = reconnect(server)
-        rejoinSession(server, id)
+        #id = reconnect(server)
+        rejoinSession(server)
 
     elif userChoice == "3":
         numPlayers = input("\nHow many players will be in this new session? ")
