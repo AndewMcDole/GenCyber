@@ -179,7 +179,7 @@ class SessionServer():
                                 #client.send("Attempting to reconnect".encode())
                                 key = msg.split(" ")[2]
                                 if session.reconnectClient(client, key):
-                                    client.send("Reconnect successful").encode()
+                                    client.send("Reconnect successful".encode())
                                     self.list_of_clients.remove(client)
 
                     else:
