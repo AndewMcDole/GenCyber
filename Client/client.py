@@ -115,7 +115,7 @@ def rejoinSession(server):
             sessionID = msg.split(";")[0]
             sessionKey = msg.split(";")[1]
             print(str(sessionID))
-    server.send("join {}".format(sessionID).encode())
+    server.send("rejoin {} {}".format(sessionID, sessionKey).encode())
     msg = server.recv(1024).decode()
     print (msg)
     if msg == "reject":
