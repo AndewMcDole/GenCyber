@@ -11,8 +11,9 @@ Client Object
 
 class Client():
 
-    def __init__(self, connection, sessionKey, name):
+    def __init__(self, connection, sessionID, sessionKey, name):
         self.connection = connection
+        self.sessionID
         self.sessionKey = sessionKey
         self.name = name
         self.stones = []
@@ -51,6 +52,9 @@ class Client():
 
     def setGatherer(self):
         self.isGatherer = True
+
+    def getSessionID(self):
+        return self.sessionID
 
     def getSessionKey(self):
         return self.sessionKey
@@ -191,9 +195,9 @@ class StoneHuntGame:
     Connections and game setup
     """
 
-    def clientReady(self, conn, sessionKey, name):
+    def clientReady(self, conn, sessionID, sessionKey, name):
         # create a new client object with this information
-        client = Client(conn, sessionKey, name)
+        client = Client(conn, sessionID, sessionKey, name)
         self.listOfClients.append(client)
 
         # check to see if enough clients have connected to start the game
@@ -232,7 +236,7 @@ class StoneHuntGame:
         # wait for the client to indicate they are ready to start
         readyMessage = conn.recv(1024).decode()
         if readyMessage == "ready":
-            self.clientReady(conn, sessionKey, name)
+            self.clientReady(conn, sessionID, sessionKey, name)
             return True
         return False
 
@@ -240,12 +244,14 @@ class StoneHuntGame:
         # The message does no matter, we are telling the client the server is ready to receive
         conn.send("Ready to receive".encode())
         # receive the session key
-        sk = conn.recv(1024).decode()
+        msg = conn.recv(1024).decode()
+        id = msg.split(";")[0]
+        sk = msg.split(";")[1]
         # print("Received session key: " + sk)
 
         # check all of the clients to see if they have a matching key
         for client in self.listOfClients:
-            if client.getSessionKey() == sk:
+            if client.getSessionID() == id and client.getSessionKey() == sk:
                 conn.send("valid".encode())
                 # overwrite connection and return name to client
                 name = client.reconnectClient(conn)

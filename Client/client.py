@@ -277,11 +277,9 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                 message = ""
                 try:
                     message = receiveMessage(server, lowPriorityMessageQueue, MessageCode.LOW_PRIORITY)
-                    print(str(message))
                     if message.split(";")[1] == "END":
                         time.sleep(0.5)
                         win = server.recv(1024).decode()
-                        print(win)
                         if win == "win":
                             print ("WINNER\n\n")
                         else:
