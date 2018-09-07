@@ -33,8 +33,10 @@ class Session:
         self.listen = False
 
     def __str__(self):
-        return "Session {}  {}/{}  {}".format( self.ID, len(self.list_of_clients), self.maxNumClients, self.state)
-
+        if self.startTime == None:
+            return "Session {}  {}/{}  {}".format( self.ID, len(self.list_of_clients), self.maxNumClients, self.state)
+        else:
+            return "Session {}  {}/{}  {} {:.0f}".format( self.ID, len(self.list_of_clients), self.maxNumClients, self.state, self.currTime - self.startTime)
     def __repr__(self):
         return str(self)
 
@@ -60,7 +62,7 @@ class Session:
             try:
                 client.send(msg.encode())
             except ConnectionResetError | BrokenPipeError:
-                print("Client disconnected in session {}".format(self.ID))
+                #print("Client disconnected in session {}".format(self.ID))
                 self.list_of_clients.remove(client)
 
     def processClients(self):
@@ -104,7 +106,7 @@ class Session:
             self.processClients()
             # Check if time limit is over
             self.currTime = time.time()
-            print("Session {} elapsed Time: {}".format(self.ID, self.currTime - self.startTime))
+            #print("Session {} elapsed Time: {}".format(self.ID, self.currTime - self.startTime))
             if self.currTime - self.startTime > self.timer:
                 self.gameOver = True
                 self.heroWin = False
