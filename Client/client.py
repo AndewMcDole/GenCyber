@@ -234,6 +234,7 @@ def setupClient(server):
 
 def reconnect(server):
     server.send("reconnect".encode())
+    sessionID = 0
     sessionKey = 0
     if os.path.isfile("SessionKey.txt"):
         with open("SessionKey.txt", "r") as file:
