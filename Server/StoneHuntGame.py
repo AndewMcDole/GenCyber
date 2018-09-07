@@ -209,7 +209,7 @@ class StoneHuntGame:
             print("All players ready, begin!")
             self.gameHasStarted = True
 
-    def addClient(self, conn):
+    def addClient(self, conn, sessionID):
         if len(self.listOfClients) >= self.maxNumClients:
             conn.send("full".encode())
             return False
@@ -234,7 +234,7 @@ class StoneHuntGame:
                 conn.send("False".encode())
 
         sessionKey = self.generateSessionKey(4)
-        message = sessionKey + ";" + self.SECRET_KEY
+        message = str(sessionID) + ";" + str(sessionKey) + ";" + self.SECRET_KEY
         conn.send(message.encode())
         conn.recv(1024).decode()
 
