@@ -322,7 +322,7 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                             print ("WINNER\n\n")
                         else:
                             print ("LOSER\n\n")
-                        os.console("return")
+                        stdin.join(0.1)
                         return
 
                     if message != "":
