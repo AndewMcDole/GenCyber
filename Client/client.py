@@ -103,6 +103,20 @@ def joinSession(server):
     else:
         print("Invalid session")
 
+def rejoinSession(server, sessionID):
+    server.send("join {}".format(sessionID).encode())
+    msg = server.recv(1024).decode()
+    print (msg)
+    if msg == "reject":
+        print("Failed to join session...\n")
+    elif msg == "running":
+        print("Session in progress, if you are reconnecting, please use the reconnect option at the main menu...\n")
+    elif msg == "success":
+        print("Joined session {} successfully!\n".format(sessionID))
+        name, nameColor, location, locationColor, key = setupClient(server)
+        # Game has started
+        mainGameLoop(server, name, nameColor, locationColor, location, key)
+
 def displayMainMenu(server):
     userOptions = ["Connect to a session", "Reconnect to a session", "Create a new session", "Refresh Session List", "Exit"]
     print()
@@ -127,7 +141,8 @@ def displayMainMenu(server):
 
     elif userChoice == "2":
         print("Reconnecting to previous session")
-        reconnect(server)
+        id = reconnect(server)
+        rejoinSession(server, id)
 
     elif userChoice == "3":
         numPlayers = input("\nHow many players will be in this new session? ")
@@ -222,12 +237,14 @@ def reconnect(server):
     sessionKey = 0
     if os.path.isfile("SessionKey.txt"):
         with open("SessionKey.txt", "r") as file:
-            sessionKey = file.readline()
+            msg = file.readline()
+            sessoinID = msg.split(";")[0]
+            sessionKey = msg.split(";")[1]
     else:
         sessionKey = keyboardInput("SessionKey.txt not found, please enter a session key")
     # block until server is ready
     server.recv(1024)
-    server.send(sessionKey.encode())
+    server.send(str(sessionID) + ";" + str(sessionKey).encode())
 
     # receive confirmation from server
     if server.recv(1024).decode() == "invalid":
@@ -236,7 +253,10 @@ def reconnect(server):
 
     name = server.recv(1024).decode()
     # receive SECRET KEY
-    SECRET_KEY = server.recv(1024).decode()
+    msg = server.recv(1024).decode()
+    id = msg.split(";")[0]
+    sk = msg.split(";")[1]
+
     nameColor, locationColor = customizePrompt()
 
     server.send("setup".encode())
@@ -249,7 +269,7 @@ def reconnect(server):
     if len(setup) > 3:
         print("You are the Gatherer! You must locate the 6 Infinity Stones before Thanos can find them!")
 
-    return name, nameColor, locationColor, location, SECRET_KEY
+    return id
 
 def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
     lowPriorityMessageQueue = []
