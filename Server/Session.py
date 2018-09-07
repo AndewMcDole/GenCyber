@@ -1,7 +1,7 @@
 import select
 import time
 
-import Stonehunt
+import StoneHuntGame
 
 class Session:
 
@@ -17,8 +17,8 @@ class Session:
         self.STOP_ALL = False
         self.listening = False
 
-        # Stonehunt
-        self.game = Stonehunt.StoneHuntGame(maxNumClients)
+        # StoneHuntGame
+        self.game = StoneHuntGame.StoneHuntGame(maxNumClients)
 
         # Time tracking
         self.startTime = None
