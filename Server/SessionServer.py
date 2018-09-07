@@ -172,6 +172,7 @@ class SessionServer():
                                 if session.addClient(client):
                                     self.list_of_clients.remove(client)
                         elif msg.split(" ")[0] == "rejoin":
+                            print("MADE IN TO EJOPIN")
                             session = self.findSession(msg.split(" ")[1])
                             if session == None or session.state == "Closed":
                                 client.send("reject".encode())

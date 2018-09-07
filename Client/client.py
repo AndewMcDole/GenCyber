@@ -117,7 +117,7 @@ def rejoinSession(server):
             print(str(sessionID))
     server.send("rejoin {} {}".format(sessionID, sessionKey).encode())
     msg = server.recv(1024).decode()
-    print (msg)
+    print("EXPECTING success, running, or reject -> " + msg)
     if msg == "reject":
         print("Failed to join session...\n")
     elif msg == "running":
