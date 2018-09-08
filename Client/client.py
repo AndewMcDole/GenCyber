@@ -15,6 +15,9 @@ import colorama
 
 import Hashing
 
+global gameover
+gameover = False
+
 class MessageCode(enum.Enum):
     HIGH_PRIORITY="HIGH"
     LOW_PRIORITY="LOW"
@@ -25,7 +28,12 @@ class stdinThread(threading.Thread):
         global commandQueue
         global gameover
         while not gameover:
-            message = sys.stdin.readline()
+            try:
+                message = sys.stdin.readline()
+            except ValueError:
+                sys.exit()
+                return
+
             if message == "\n":
                 commandQueue.append("newline")
             else:
@@ -64,7 +72,8 @@ def main(argv):
     session_list = pickle.loads(server.recv(2048))
     num_sessions = len(session_list)
 
-    while True:
+    global gameover
+    while not gameover:
         displayMainMenu(server)
 
 def setupNetwork(ip_addr, port):
@@ -329,8 +338,8 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                             print ("You Won! You found the 6 Infinity Stones before Thanos!\n\n")
                         else:
                             print ("You Lost! Thanos found all of the Infinity Stones and you suddenly don't feel so good...\n\n")
-                        exitSequence()
-                        return
+                        commandQueue.append("exit")
+                        exit()
 
                     if message != "":
                         commandExecuted = True
@@ -345,10 +354,6 @@ def executeCommand(server, lowPriorityMessageQueue, SECRET_KEY):
     global commandQueue
     if len(commandQueue) == 0:
         return False
-
-    global gameover
-    if gameover:
-        return True
 
     next_command = commandQueue[0]
 
