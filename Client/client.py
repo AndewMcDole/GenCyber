@@ -299,12 +299,12 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
     if sys.platform == "win32":
         colorama.init()
 
+    global gameover
+    gameover = False
+
     global stdin
     stdin = stdinThread()
     stdin.start()
-
-    global gameover
-    gameover = False
 
     while True:
         sys.stdout.write("{}@{}$ ".format(colored(name, nameColor), colored(location, locationColor)))
