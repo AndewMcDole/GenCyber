@@ -23,7 +23,8 @@ class MessageCode(enum.Enum):
 class stdinThread(threading.Thread):
     def run(self):
         global commandQueue
-        while True:
+        global gameover
+        while not gameover:
             message = sys.stdin.readline()
             if message == "\n":
                 commandQueue.append("newline")
@@ -51,6 +52,7 @@ class stdinThread(threading.Thread):
                     return
                 else:
                     commandQueue.append("unknown")
+        return
 
 def main(argv):
     print("Connecting to server on {} on port {}".format(argv[1], argv[2]))
@@ -301,6 +303,9 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
     stdin = stdinThread()
     stdin.start()
 
+    global gameover
+    gameover = False
+
     while True:
         sys.stdout.write("{}@{}$ ".format(colored(name, nameColor), colored(location, locationColor)))
         sys.stdout.flush()
@@ -541,7 +546,8 @@ def printSessions():
         print(sess)
 
 def exitSequence():
-    global stdin
+    global gameover
+    gameover = True
     print("Exiting...")
     if sys.platform == "linux" or sys.platform == "linux2":
         exit(0)
