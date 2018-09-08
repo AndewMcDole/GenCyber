@@ -5,7 +5,7 @@ import StoneHuntGame
 
 class Session:
 
-    def __init__(self, ID, maxNumClients):
+    def __init__(self, ID, maxNumClients, time):
         self.ID = ID
 
         self.maxNumClients = int(maxNumClients)
@@ -23,7 +23,7 @@ class Session:
         # Time tracking
         self.startTime = None
         self.currTime = None
-        self.timer = 30
+        self.timer = time
 
         # game over and winner
         self.gameOver = False

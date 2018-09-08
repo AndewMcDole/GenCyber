@@ -14,7 +14,7 @@ from Session import Session
 
 class SessionServer():
 
-    def __init__(self):
+    def __init__(self, time):
         self.list_of_clients = []
         self.list_of_commands = []
         self.list_of_sessions = []
@@ -24,6 +24,8 @@ class SessionServer():
 
         self.listen_sess = None
 
+        self.session_time = time * 60
+
     def createNewSession(self, num_players):
         if num_players == None or num_players == "" or int(num_players) < 1:
             print("Failed to create session...")
@@ -32,7 +34,7 @@ class SessionServer():
         self.lifetime_num_sessions += 1
         ID = self.lifetime_num_sessions
 
-        new_session = Session(ID, num_players)
+        new_session = Session(ID, num_players, self.session_time)
         start_new_thread(new_session.start, ())
         self.list_of_sessions.append(new_session)
         print("Created new session for {} players".format(num_players))
@@ -147,56 +149,59 @@ class SessionServer():
                     self.listen_sess = None
 
     def processClients(self):
-        while True:
-            # Check each client to see if they want to join a session
-            # This timeout time affects how 'responsive' the server feels
-            read_socks, write_socks, error_socks = select.select(self.list_of_clients, [], [], 0.1)
+        try:
+            while True:
+                # Check each client to see if they want to join a session
+                # This timeout time affects how 'responsive' the server feels
+                read_socks, write_socks, error_socks = select.select(self.list_of_clients, [], [], 0.1)
 
-            # Proccess each request
-            for client in read_socks:
-                try:
-                    msg = client.recv(2048).decode()
+                # Proccess each request
+                for client in read_socks:
+                    try:
+                        msg = client.recv(2048).decode()
 
-                    if msg:
-                        print("Processing Client Request")
-                        first = msg.split(" ")[0]
-                        if first == "refresh":
-                            self.sendSessionList(client)
-                        elif first == "join":
-                            session = self.findSession(msg.split(" ")[1])
-                            if session == None or session.state == "Closed":
-                                client.send("reject".encode())
-                            elif session.state == "Running":
-                                client.send("running".encode())
-                            else:
-                                client.send("success".encode())
-                                if session.addClient(client):
-                                    self.list_of_clients.remove(client)
-                        elif first == "rejoin":
-                            session = self.findSession(msg.split(" ")[1])
-                            if session == None or session.state == "Closed":
-                                print("Closed")
-                                #client.send("reject".encode())
-                            elif session.state == "Running":
-                                key = msg.split(" ")[2]
-                                if session.reconnectClient(client, key):
-                                    #client.send("success".encode())
-                                    self.list_of_clients.remove(client)
+                        if msg:
+                            print("Processing Client Request")
+                            first = msg.split(" ")[0]
+                            if first == "refresh":
+                                self.sendSessionList(client)
+                            elif first == "join":
+                                session = self.findSession(msg.split(" ")[1])
+                                if session == None or session.state == "Closed":
+                                    client.send("reject".encode())
+                                elif session.state == "Running":
+                                    client.send("running".encode())
+                                else:
+                                    client.send("success".encode())
+                                    if session.addClient(client):
+                                        self.list_of_clients.remove(client)
+                            elif first == "rejoin":
+                                session = self.findSession(msg.split(" ")[1])
+                                if session == None or session.state == "Closed":
+                                    print("Closed")
+                                    #client.send("reject".encode())
+                                elif session.state == "Running":
+                                    key = msg.split(" ")[2]
+                                    if session.reconnectClient(client, key):
+                                        #client.send("success".encode())
+                                        self.list_of_clients.remove(client)
 
-                    else:
+                        else:
+                            print("Client disconnected")
+                            self.list_of_clients.remove(client)
+
+                    except BrokenPipeError | ConnectionResetError:
                         print("Client disconnected")
                         self.list_of_clients.remove(client)
 
-                except BrokenPipeError | ConnectionResetError:
-                    print("Client disconnected")
-                    self.list_of_clients.remove(client)
 
+                # Proccess any server commands
+                self.proccessCommands()
 
-            # Proccess any server commands
-            self.proccessCommands()
-
-            # Clean up closed sessions
-            self.closeSessions()
+                # Clean up closed sessions
+                self.closeSessions()
+        except:
+            pass
 
 """""""""""""""""""""""""""""""""""""""""""""
                     Main
@@ -205,7 +210,7 @@ class SessionServer():
 def main(argv):
      server = setupNetwork(argv[1], int(argv[2]))
 
-     SS = SessionServer()
+     SS = SessionServer(int(argv[3]))
      start_new_thread(SS.listenForCommands, ())
      start_new_thread(SS.processClients, ())
 
@@ -227,7 +232,7 @@ def setupNetwork(ip_addr, port):
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Proper Usage: python3 server.py ip_addr port NumPlayers")
+        print("Proper Usage: python3 server.py ip_addr port session-time")
         exit()
     try:
         main(sys.argv)
