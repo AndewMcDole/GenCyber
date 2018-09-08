@@ -108,17 +108,17 @@ def joinSession(server):
         print("Invalid session")
 
 def rejoinSession(server):
-    print("RejoinSession")
+    # print("RejoinSession")
     sessionID = 0
     sessionKey = 0
     if os.path.isfile("SessionKey.txt"):
-        print("file here")
+        # print("file here")
         with open("SessionKey.txt", "r") as file:
             msg = file.readline()
-            print("file msg: " + msg)
+        #    print("file msg: " + msg)
             sessionID = msg.split(";")[0]
             sessionKey = msg.split(";")[1]
-            print(str(sessionID))
+            print("Session ID: ", str(sessionID))
     server.send("rejoin {} {}".format(sessionID, sessionKey).encode())
 
     # receive confirmation from server
@@ -134,11 +134,13 @@ def rejoinSession(server):
     gatherer = clientSetup.split(";")[4]
 
     msg = server.recv(1024).decode()
-    print("EXPECTING success, running, or reject -> " + msg)
+    # print("EXPECTING success, running, or reject -> " + msg)
     if msg == "reject":
         print("Failed to join session...\n")
     elif msg == "running":
         print("Session in progress, if you are reconnecting, please use the reconnect option at the main menu...\n")
+        server.send("refresh".encode())
+        session_list = pickle.loads(server.recv(2048))
     elif msg == "success":
         print("Joined session {} successfully!\n".format(sessionID))
         # Game has started
@@ -306,7 +308,7 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
     stdin = stdinThread()
     stdin.start()
 
-    while True:
+    while not gameover:
         sys.stdout.write("{}@{}$ ".format(colored(name, nameColor), colored(location, locationColor)))
         sys.stdout.flush()
 
@@ -324,9 +326,9 @@ def mainGameLoop(server, name, nameColor, locationColor, location, SECRET_KEY):
                         time.sleep(0.5)
                         win = server.recv(1024).decode()
                         if win == "win":
-                            print ("WINNER\n\n")
+                            print ("You Won! You found the 6 Infinity Stones before Thanos!\n\n")
                         else:
-                            print ("LOSER\n\n")
+                            print ("You Lost! Thanos found all of the Infinity Stones and you suddenly don't feel so good...\n\n")
                         exitSequence()
                         return
 
@@ -343,6 +345,10 @@ def executeCommand(server, lowPriorityMessageQueue, SECRET_KEY):
     global commandQueue
     if len(commandQueue) == 0:
         return False
+
+    global gameover
+    if gameover:
+        return True
 
     next_command = commandQueue[0]
 
